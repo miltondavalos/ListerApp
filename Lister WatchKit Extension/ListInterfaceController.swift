@@ -37,7 +37,7 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
     
     // MARK: Interface Table Selection
     
-    override func table(table: WKInterfaceTable, didSelectRowAtIndex rowIndex: Int) {
+    override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
         guard let listPresenter = listPresenter else { return }
 
         let listItem = listPresenter.presentedListItems[rowIndex]
@@ -71,8 +71,8 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
             }
         }
         else {
-            let indexSet = NSIndexSet(index: 0)
-            interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.noItems)
+            let indexSet = IndexSet(integer: 0)
+            interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.noItems)
         }
     }
     
@@ -87,24 +87,24 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
     }
     
     func listPresenter(_: ListPresenterType, didInsertListItem listItem: ListItem, atIndex index: Int) {
-        let indexSet = NSIndexSet(index: index)
+        let indexSet = IndexSet(integer: index)
         
         // The list presenter was previously empty. Remove the "no items" row.
         if index == 0 && listPresenter!.count == 1 {
-            interfaceTable.removeRowsAtIndexes(indexSet)
+            interfaceTable.removeRows(at: indexSet)
         }
         
-        interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.item)
+        interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.item)
     }
     
     func listPresenter(_: ListPresenterType, didRemoveListItem listItem: ListItem, atIndex index: Int) {
-        let indexSet = NSIndexSet(index: index)
+        let indexSet = IndexSet(integer: index)
 
-        interfaceTable.removeRowsAtIndexes(indexSet)
+        interfaceTable.removeRows(at: indexSet)
         
         // The list presenter is now empty. Add the "no items" row.
         if index == 0 && listPresenter!.isEmpty {
-            interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.noItems)
+            interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.noItems)
         }
     }
     
@@ -114,23 +114,23 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
     
     func listPresenter(_: ListPresenterType, didMoveListItem listItem: ListItem, fromIndex: Int, toIndex: Int) {
         // Remove the item from the fromIndex straight away.
-        let fromIndexSet = NSIndexSet(index: fromIndex)
+        let fromIndexSet = IndexSet(integer: fromIndex)
         
-        interfaceTable.removeRowsAtIndexes(fromIndexSet)
+        interfaceTable.removeRows(at: fromIndexSet)
         
         /*
             Determine where to insert the moved item. If the `toIndex` was beyond the `fromIndex`, normalize
             its value.
         */
-        var toIndexSet: NSIndexSet
+        var toIndexSet: IndexSet
         if toIndex > fromIndex {
-            toIndexSet = NSIndexSet(index: toIndex - 1)
+            toIndexSet = IndexSet(integer: toIndex - 1)
         }
         else {
-            toIndexSet = NSIndexSet(index: toIndex)
+            toIndexSet = IndexSet(integer: toIndex)
         }
         
-        interfaceTable.insertRowsAtIndexes(toIndexSet, withRowType: Storyboard.RowTypes.item)
+        interfaceTable.insertRows(at: toIndexSet, withRowType: Storyboard.RowTypes.item)
     }
     
     func listPresenter(_: ListPresenterType, didUpdateListColorWithColor color: List.Color) {
@@ -151,7 +151,7 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
                 The underlying document changed because of user interaction (this event only occurs if the
                 list presenter's underlying list presentation changes based on user interaction).
             */
-            listDocument.updateChangeCount(.Done)
+            listDocument.updateChangeCount(.done)
         }
     }
     
@@ -162,7 +162,7 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
         
         listPresenter!.delegate = self
         
-        listDocument.openWithCompletionHandler { success in
+        listDocument.open { success in
             if !success {
                 print("Couldn't open document: \(self.listDocument?.fileURL).")
                 
@@ -175,8 +175,8 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
                 is passed instead of a URL because the `userInfo` dictionary of a WatchKit app's user activity
                 does not allow NSURL values.
             */
-            let userInfo: [NSObject: AnyObject] = [
-                AppConfiguration.UserActivity.listURLPathUserInfoKey: self.listDocument.fileURL.path!,
+            let userInfo: [AnyHashable: Any] = [
+                AppConfiguration.UserActivity.listURLPathUserInfoKey: self.listDocument.fileURL.path,
                 AppConfiguration.UserActivity.listColorUserInfoKey: self.listDocument.listPresenter!.color.rawValue
             ]
             
@@ -188,26 +188,26 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
         }
     }
     
-    func configureRowControllerAtIndex(index: Int) {
+    func configureRowControllerAtIndex(_ index: Int) {
         guard let listPresenter = listPresenter else { return }
         
-        let listItemRowController = interfaceTable.rowControllerAtIndex(index) as! ListItemRowController
+        let listItemRowController = interfaceTable.rowController(at: index) as! ListItemRowController
         
         let listItem = listPresenter.presentedListItems[index]
         
         listItemRowController.setText(listItem.text)
-        let textColor = listItem.isComplete ? UIColor.grayColor() : UIColor.whiteColor()
+        let textColor = listItem.isComplete ? UIColor.gray : UIColor.white
         listItemRowController.setTextColor(textColor)
         
         // Update the checkbox image.
         let state = listItem.isComplete ? "checked" : "unchecked"
-        let imageName = "checkbox-\(listPresenter.color.name.lowercaseString)-\(state)"
+        let imageName = "checkbox-\(listPresenter.color.name.lowercased())-\(state)"
         listItemRowController.setCheckBoxImageNamed(imageName)
     }
     
     // MARK: Interface Life Cycle
     
-    override func awakeWithContext(context: AnyObject?) {
+    override func awake(withContext context: Any?) {
         precondition(context is ListInfo, "Expected class of `context` to be ListInfo.")
         
         let listInfo = context as! ListInfo
@@ -221,6 +221,6 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate {
     }
     
     override func didDeactivate() {
-        listDocument.closeWithCompletionHandler(nil)
+        listDocument.close(completionHandler: nil)
     }
 }

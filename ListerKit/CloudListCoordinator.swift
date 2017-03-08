@@ -28,31 +28,31 @@ import Foundation
     it must make its delegate aware by calling one of the appropriate error methods defined in the
     `ListCoordinatorDelegate` protocol.
 */
-public class CloudListCoordinator: ListCoordinator {
+open class CloudListCoordinator: ListCoordinator {
     // MARK: Properties
     
-    public weak var delegate: ListCoordinatorDelegate?
+    open weak var delegate: ListCoordinatorDelegate?
     
     /// Closure executed after the first update provided by the coordinator regarding tracked URLs.
-    private var firstQueryUpdateHandler: (Void -> Void)?
+    fileprivate var firstQueryUpdateHandler: ((Void) -> Void)?
     
     /// Initialized asynchronously in init(predicate:).
-    private var _documentsDirectory: NSURL!
+    fileprivate var _documentsDirectory: URL!
     
-    public var documentsDirectory: NSURL {
-        var documentsDirectory: NSURL!
+    open var documentsDirectory: URL {
+        var documentsDirectory: URL!
         
-        dispatch_sync(documentsDirectoryQueue) {
+        documentsDirectoryQueue.sync {
             documentsDirectory = self._documentsDirectory
         }
         
         return documentsDirectory
     }
 
-    private var metadataQuery: NSMetadataQuery
+    fileprivate var metadataQuery: NSMetadataQuery
     
     /// A private, local queue to `CloudListCoordinator` that is used to ensure serial accesss to `documentsDirectory`.
-    private let documentsDirectoryQueue = dispatch_queue_create("com.example.apple-samplecode.lister.cloudlistcoordinator", DISPATCH_QUEUE_CONCURRENT)
+    fileprivate let documentsDirectoryQueue = DispatchQueue(label: "com.example.apple-samplecode.lister.cloudlistcoordinator", attributes: DispatchQueue.Attributes.concurrent)
     
     // MARK: Initializers
     
@@ -65,7 +65,7 @@ public class CloudListCoordinator: ListCoordinator {
         - parameter pathExtension: The extension that should be used to identify documents of interest to this coordinator.
         - parameter firstQueryUpdateHandler: The handler that is executed once the first results are returned.
     */
-    public convenience init(pathExtension: String, firstQueryUpdateHandler: (Void -> Void)? = nil) {
+    public convenience init(pathExtension: String, firstQueryUpdateHandler: ((Void) -> Void)? = nil) {
         let predicate = NSPredicate(format: "(%K.pathExtension = %@)", argumentArray: [NSMetadataItemURLKey, pathExtension])
         
         self.init(predicate: predicate, firstQueryUpdateHandler: firstQueryUpdateHandler)
@@ -79,13 +79,13 @@ public class CloudListCoordinator: ListCoordinator {
         - parameter lastPathComponent: The file name that should be monitored by this coordinator.
         - parameter firstQueryUpdateHandler: The handler that is executed once the first results are returned.
     */
-    public convenience init(lastPathComponent: String, firstQueryUpdateHandler: (Void -> Void)? = nil) {
+    public convenience init(lastPathComponent: String, firstQueryUpdateHandler: ((Void) -> Void)? = nil) {
         let predicate = NSPredicate(format: "(%K.lastPathComponent = %@)", argumentArray: [NSMetadataItemURLKey, lastPathComponent])
 
         self.init(predicate: predicate, firstQueryUpdateHandler: firstQueryUpdateHandler)
     }
     
-    private init(predicate: NSPredicate, firstQueryUpdateHandler: (Void -> Void)?) {
+    fileprivate init(predicate: NSPredicate, firstQueryUpdateHandler: ((Void) -> Void)?) {
         self.firstQueryUpdateHandler = firstQueryUpdateHandler
         
         metadataQuery = NSMetadataQuery()
@@ -95,47 +95,47 @@ public class CloudListCoordinator: ListCoordinator {
         
         metadataQuery.predicate = predicate
         
-        dispatch_barrier_async(documentsDirectoryQueue) {
-            let cloudContainerURL = NSFileManager.defaultManager().URLForUbiquityContainerIdentifier(nil)
+        documentsDirectoryQueue.async(flags: .barrier, execute: {
+            let cloudContainerURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)
 
-            self._documentsDirectory = cloudContainerURL?.URLByAppendingPathComponent("Documents")
-        }
+            self._documentsDirectory = cloudContainerURL?.appendingPathComponent("Documents")
+        }) 
         
         // Observe the query.
-        let notificationCenter = NSNotificationCenter.defaultCenter()
+        let notificationCenter = NotificationCenter.default
         
-        notificationCenter.addObserver(self, selector: #selector(CloudListCoordinator.metadataQueryDidFinishGathering(_:)), name: NSMetadataQueryDidFinishGatheringNotification, object: metadataQuery)
+        notificationCenter.addObserver(self, selector: #selector(CloudListCoordinator.metadataQueryDidFinishGathering(_:)), name: NSNotification.Name.NSMetadataQueryDidFinishGathering, object: metadataQuery)
 
-        notificationCenter.addObserver(self, selector: #selector(CloudListCoordinator.metadataQueryDidUpdate(_:)), name: NSMetadataQueryDidUpdateNotification, object: metadataQuery)
+        notificationCenter.addObserver(self, selector: #selector(CloudListCoordinator.metadataQueryDidUpdate(_:)), name: NSNotification.Name.NSMetadataQueryDidUpdate, object: metadataQuery)
     }
     
     // MARK: Lifetime
     
     deinit {
         // Stop observing the query.
-        let notificationCenter = NSNotificationCenter.defaultCenter()
-        notificationCenter.removeObserver(self, name: NSMetadataQueryDidFinishGatheringNotification, object: metadataQuery)
-        notificationCenter.removeObserver(self, name: NSMetadataQueryDidUpdateNotification, object: metadataQuery)
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.removeObserver(self, name: NSNotification.Name.NSMetadataQueryDidFinishGathering, object: metadataQuery)
+        notificationCenter.removeObserver(self, name: NSNotification.Name.NSMetadataQueryDidUpdate, object: metadataQuery)
     }
     
     // MARK: ListCoordinator
     
-    public func startQuery() {
+    open func startQuery() {
         // `NSMetadataQuery` should always be started on the main thread.
-        dispatch_async(dispatch_get_main_queue()) {
-            self.metadataQuery.startQuery()
+        DispatchQueue.main.async {
+            self.metadataQuery.start()
             return
         }
     }
     
-    public func stopQuery() {
+    open func stopQuery() {
         // `NSMetadataQuery` should always be stopped on the main thread.
-        dispatch_async(dispatch_get_main_queue()) {
-            self.metadataQuery.stopQuery()
+        DispatchQueue.main.async {
+            self.metadataQuery.stop()
         }
     }
     
-    public func createURLForList(list: List, withName name: String) {
+    open func createURLForList(_ list: List, withName name: String) {
         let documentURL = documentURLForName(name)
         
         ListUtilities.createList(list, atURL: documentURL) { error in
@@ -148,23 +148,23 @@ public class CloudListCoordinator: ListCoordinator {
         }
     }
 
-    public func canCreateListWithName(name: String) -> Bool {
+    open func canCreateListWithName(_ name: String) -> Bool {
         if name.isEmpty {
             return false
         }
         
         let documentURL = documentURLForName(name)
         
-        return !NSFileManager.defaultManager().fileExistsAtPath(documentURL.path!)
+        return !FileManager.default.fileExists(atPath: documentURL.path)
     }
     
-    public func copyListFromURL(URL: NSURL, toListWithName name: String) {
+    open func copyListFromURL(_ URL: Foundation.URL, toListWithName name: String) {
         let documentURL = documentURLForName(name)
         
         ListUtilities.copyFromURL(URL, toURL: documentURL)
     }
 
-    public func removeListAtURL(URL: NSURL) {
+    open func removeListAtURL(_ URL: Foundation.URL) {
         ListUtilities.removeListAtURL(URL) { error in
             if let realError = error {
                 self.delegate?.listCoordinatorDidFailRemovingListAtURL(URL, withError: realError)
@@ -177,12 +177,12 @@ public class CloudListCoordinator: ListCoordinator {
     
     // MARK: NSMetadataQuery Notifications
     
-    @objc private func metadataQueryDidFinishGathering(notifcation: NSNotification) {
+    @objc fileprivate func metadataQueryDidFinishGathering(_ notifcation: Notification) {
         metadataQuery.disableUpdates()
 
         let metadataItems = metadataQuery.results as! [NSMetadataItem]
 
-        let insertedURLs = metadataItems.map { $0.valueForAttribute(NSMetadataItemURLKey) as! NSURL }
+        let insertedURLs = metadataItems.map { $0.value(forAttribute: NSMetadataItemURLKey) as! URL }
 
         delegate?.listCoordinatorDidUpdateContents(insertedURLs: insertedURLs, removedURLs: [], updatedURLs: [])
         
@@ -200,15 +200,15 @@ public class CloudListCoordinator: ListCoordinator {
         Private methods that are used with Objective-C for notifications, target / action, etc. should
         be marked as @objc.
     */
-    @objc private func metadataQueryDidUpdate(notification: NSNotification) {
+    @objc fileprivate func metadataQueryDidUpdate(_ notification: Notification) {
         metadataQuery.disableUpdates()
         
-        let insertedURLs: [NSURL]
-        let removedURLs: [NSURL]
-        let updatedURLs: [NSURL]
+        let insertedURLs: [URL]
+        let removedURLs: [URL]
+        let updatedURLs: [URL]
         
-        let metadataItemToURLTransform: NSMetadataItem -> NSURL = { metadataItem in
-            return metadataItem.valueForAttribute(NSMetadataItemURLKey) as! NSURL
+        let metadataItemToURLTransform: (NSMetadataItem) -> URL = { metadataItem in
+            return metadataItem.value(forAttribute: NSMetadataItemURLKey) as! URL
         }
 
         if let insertedMetadataItems = notification.userInfo?[NSMetadataQueryUpdateAddedItemsKey] as? [NSMetadataItem] {
@@ -227,7 +227,7 @@ public class CloudListCoordinator: ListCoordinator {
         
         if let updatedMetadataItems = notification.userInfo?[NSMetadataQueryUpdateChangedItemsKey] as? [NSMetadataItem] {
             let completelyDownloadedUpdatedMetadataItems = updatedMetadataItems.filter { updatedMetadataItem in
-                let downloadStatus = updatedMetadataItem.valueForAttribute(NSMetadataUbiquitousItemDownloadingStatusKey) as! String
+                let downloadStatus = updatedMetadataItem.value(forAttribute: NSMetadataUbiquitousItemDownloadingStatusKey) as! String
 
                 return downloadStatus == NSMetadataUbiquitousItemDownloadingStatusCurrent
             }
@@ -245,9 +245,9 @@ public class CloudListCoordinator: ListCoordinator {
     
     // MARK: Convenience
     
-    private func documentURLForName(name: String) -> NSURL {
-        let documentURLWithoutExtension = documentsDirectory.URLByAppendingPathComponent(name)!
+    fileprivate func documentURLForName(_ name: String) -> URL {
+        let documentURLWithoutExtension = documentsDirectory.appendingPathComponent(name)
         
-        return documentURLWithoutExtension.URLByAppendingPathExtension(AppConfiguration.listerFileExtension)!
+        return documentURLWithoutExtension.appendingPathExtension(AppConfiguration.listerFileExtension)
     }
 }

@@ -10,10 +10,10 @@ import Foundation
 
 public typealias StorageState = (storageOption: AppConfiguration.Storage, accountDidChange: Bool, cloudAvailable: Bool)
 
-public class AppConfiguration {
+open class AppConfiguration {
     // MARK: Types
     
-    private struct Defaults {
+    fileprivate struct Defaults {
         static let firstLaunchKey = "AppConfiguration.Defaults.firstLaunchKey"
         static let storageOptionKey = "AppConfiguration.Defaults.storageOptionKey"
         static let storedUbiquityIdentityToken = "AppConfiguration.Defaults.storedUbiquityIdentityToken"
@@ -58,8 +58,8 @@ public class AppConfiguration {
         and the code below. The value of `Bundle.prefix` is then used as part of an interpolated string to insert
         the user-defined value of `LISTER_BUNDLE_PREFIX` into several static string constants below.
     */
-    private struct Bundle {
-        static var prefix = NSBundle.mainBundle().objectForInfoDictionaryKey("AAPLListerBundlePrefix") as! String
+    fileprivate struct Bundle {
+        static var prefix = Foundation.Bundle.main.object(forInfoDictionaryKey: "AAPLListerBundlePrefix") as! String
     }
 
     struct ApplicationGroups {
@@ -81,10 +81,10 @@ public class AppConfiguration {
     }
     
     public enum Storage: Int {
-        case NotSet = 0, Local, Cloud
+        case notSet = 0, local, cloud
     }
     
-    public class var sharedConfiguration: AppConfiguration {
+    open class var sharedConfiguration: AppConfiguration {
         struct Singleton {
             static let sharedAppConfiguration = AppConfiguration()
         }
@@ -92,50 +92,50 @@ public class AppConfiguration {
         return Singleton.sharedAppConfiguration
     }
     
-    public class var listerUTI: String {
+    open class var listerUTI: String {
         return "com.example.apple-samplecode.Lister"
     }
     
-    public class var listerFileExtension: String {
+    open class var listerFileExtension: String {
         return "list"
     }
     
-    public class var defaultListerDraftName: String {
+    open class var defaultListerDraftName: String {
         return NSLocalizedString("List", comment: "")
     }
     
-    public class var localizedTodayDocumentName: String {
+    open class var localizedTodayDocumentName: String {
         return NSLocalizedString("Today", comment: "The name of the Today list")
     }
     
-    public class var localizedTodayDocumentNameAndExtension: String {
+    open class var localizedTodayDocumentNameAndExtension: String {
         return "\(localizedTodayDocumentName).\(listerFileExtension)"
     }
     
-    private var applicationUserDefaults: NSUserDefaults {
-        return NSUserDefaults(suiteName: ApplicationGroups.primary)!
+    fileprivate var applicationUserDefaults: UserDefaults {
+        return UserDefaults(suiteName: ApplicationGroups.primary)!
     }
     
-    public private(set) var isFirstLaunch: Bool {
+    open fileprivate(set) var isFirstLaunch: Bool {
         get {
             registerDefaults()
             
-            return applicationUserDefaults.boolForKey(Defaults.firstLaunchKey)
+            return applicationUserDefaults.bool(forKey: Defaults.firstLaunchKey)
         }
         set {
-            applicationUserDefaults.setBool(newValue, forKey: Defaults.firstLaunchKey)
+            applicationUserDefaults.set(newValue, forKey: Defaults.firstLaunchKey)
         }
     }
     
-    private func registerDefaults() {
+    fileprivate func registerDefaults() {
         #if os(iOS)
             let defaultOptions: [String: AnyObject] = [
-                Defaults.firstLaunchKey: true,
-                Defaults.storageOptionKey: Storage.NotSet.rawValue
+                Defaults.firstLaunchKey: true as AnyObject,
+                Defaults.storageOptionKey: Storage.notSet.rawValue as AnyObject
             ]
         #elseif os(watchOS)
             let defaultOptions: [String: AnyObject] = [
-                Defaults.firstLaunchKey: true
+                Defaults.firstLaunchKey: true as AnyObject
             ]
         #elseif os(OSX)
             let defaultOptions: [String: AnyObject] = [
@@ -143,10 +143,10 @@ public class AppConfiguration {
             ]
         #endif
         
-        applicationUserDefaults.registerDefaults(defaultOptions)
+        applicationUserDefaults.register(defaults: defaultOptions)
     }
     
-    public func runHandlerOnFirstLaunch(firstLaunchHandler: Void -> Void) {
+    open func runHandlerOnFirstLaunch(_ firstLaunchHandler: (Void) -> Void) {
         if isFirstLaunch {
             isFirstLaunch = false
 
@@ -154,34 +154,34 @@ public class AppConfiguration {
         }
     }
     
-    public var isCloudAvailable: Bool {
-        return NSFileManager.defaultManager().ubiquityIdentityToken != nil
+    open var isCloudAvailable: Bool {
+        return FileManager.default.ubiquityIdentityToken != nil
     }
     
     #if os(iOS)
-    public var storageState: StorageState {
+    open var storageState: StorageState {
         return (storageOption, hasAccountChanged(), isCloudAvailable)
     }
     
-    public var storageOption: Storage {
+    open var storageOption: Storage {
         get {
-            let value = applicationUserDefaults.integerForKey(Defaults.storageOptionKey)
+            let value = applicationUserDefaults.integer(forKey: Defaults.storageOptionKey)
             
             return Storage(rawValue: value)!
         }
 
         set {
-            applicationUserDefaults.setInteger(newValue.rawValue, forKey: Defaults.storageOptionKey)
+            applicationUserDefaults.set(newValue.rawValue, forKey: Defaults.storageOptionKey)
         }
     }
 
     // MARK: Ubiquity Identity Token Handling (Account Change Info)
     
-    public func hasAccountChanged() -> Bool {
+    open func hasAccountChanged() -> Bool {
         var hasChanged = false
         
-        let currentToken: protocol<NSCoding, NSCopying, NSObjectProtocol>? = NSFileManager.defaultManager().ubiquityIdentityToken
-        let storedToken: protocol<NSCoding, NSCopying, NSObjectProtocol>? = storedUbiquityIdentityToken
+        let currentToken: (NSCoding & NSCopying & NSObjectProtocol)? = FileManager.default.ubiquityIdentityToken
+        let storedToken: (NSCoding & NSCopying & NSObjectProtocol)? = storedUbiquityIdentityToken
         
         let currentTokenNilStoredNonNil = currentToken == nil && storedToken != nil
         let storedTokenNilCurrentNonNil = currentToken != nil && storedToken == nil
@@ -198,29 +198,29 @@ public class AppConfiguration {
         return hasChanged
     }
 
-    private func persistAccount() {
+    fileprivate func persistAccount() {
         let defaults = applicationUserDefaults
         
-        if let token = NSFileManager.defaultManager().ubiquityIdentityToken {
-            let ubiquityIdentityTokenArchive = NSKeyedArchiver.archivedDataWithRootObject(token)
+        if let token = FileManager.default.ubiquityIdentityToken {
+            let ubiquityIdentityTokenArchive = NSKeyedArchiver.archivedData(withRootObject: token)
             
-            defaults.setObject(ubiquityIdentityTokenArchive, forKey: Defaults.storedUbiquityIdentityToken)
+            defaults.set(ubiquityIdentityTokenArchive, forKey: Defaults.storedUbiquityIdentityToken)
         }
         else {
-            defaults.removeObjectForKey(Defaults.storedUbiquityIdentityToken)
+            defaults.removeObject(forKey: Defaults.storedUbiquityIdentityToken)
         }
     }
     
     // MARK: Convenience
 
-    private var storedUbiquityIdentityToken: protocol<NSCoding, NSCopying, NSObjectProtocol>? {
-        var storedToken: protocol<NSCoding, NSCopying, NSObjectProtocol>?
+    fileprivate var storedUbiquityIdentityToken: (NSCoding & NSCopying & NSObjectProtocol)? {
+        var storedToken: (NSCoding & NSCopying & NSObjectProtocol)?
         
         // Determine if the logged in iCloud account has changed since the user last launched the app.
-        let archivedObject: AnyObject? = applicationUserDefaults.objectForKey(Defaults.storedUbiquityIdentityToken)
+        let archivedObject: AnyObject? = applicationUserDefaults.object(forKey: Defaults.storedUbiquityIdentityToken) as AnyObject?
         
-        if let ubiquityIdentityTokenArchive = archivedObject as? NSData,
-           let archivedObject = NSKeyedUnarchiver.unarchiveObjectWithData(ubiquityIdentityTokenArchive) as? protocol<NSCoding, NSCopying, NSObjectProtocol> {
+        if let ubiquityIdentityTokenArchive = archivedObject as? Data,
+           let archivedObject = NSKeyedUnarchiver.unarchiveObject(with: ubiquityIdentityTokenArchive) as? NSCoding & NSCopying & NSObjectProtocol {
             storedToken = archivedObject
         }
         
@@ -231,8 +231,8 @@ public class AppConfiguration {
         Returns a `ListCoordinator` based on the current configuration that queries based on `pathExtension`.
         For example, if the user has chosen local storage, a local `ListCoordinator` object will be returned.
     */
-    public func listCoordinatorForCurrentConfigurationWithPathExtension(pathExtension: String, firstQueryHandler: (Void -> Void)? = nil) -> ListCoordinator {
-        if AppConfiguration.sharedConfiguration.storageOption != .Cloud {
+    open func listCoordinatorForCurrentConfigurationWithPathExtension(_ pathExtension: String, firstQueryHandler: ((Void) -> Void)? = nil) -> ListCoordinator {
+        if AppConfiguration.sharedConfiguration.storageOption != .cloud {
             // This will be called if the storage option is either `.Local` or `.NotSet`.
             return LocalListCoordinator(pathExtension: pathExtension, firstQueryUpdateHandler: firstQueryHandler)
         }
@@ -245,8 +245,8 @@ public class AppConfiguration {
         Returns a `ListCoordinator` based on the current configuration that queries based on `lastPathComponent`.
         For example, if the user has chosen local storage, a local `ListCoordinator` object will be returned.
     */
-    public func listCoordinatorForCurrentConfigurationWithLastPathComponent(lastPathComponent: String, firstQueryHandler: (Void -> Void)? = nil) -> ListCoordinator {
-        if AppConfiguration.sharedConfiguration.storageOption != .Cloud {
+    open func listCoordinatorForCurrentConfigurationWithLastPathComponent(_ lastPathComponent: String, firstQueryHandler: ((Void) -> Void)? = nil) -> ListCoordinator {
+        if AppConfiguration.sharedConfiguration.storageOption != .cloud {
             // This will be called if the storage option is either `.Local` or `.NotSet`.
             return LocalListCoordinator(lastPathComponent: lastPathComponent, firstQueryUpdateHandler: firstQueryHandler)
         }
@@ -260,11 +260,11 @@ public class AppConfiguration {
         chosen local storage, a `ListsController` object will be returned that uses a local list coordinator.
         `pathExtension` is passed down to the list coordinator to filter results.
     */
-    public func listsControllerForCurrentConfigurationWithPathExtension(pathExtension: String, firstQueryHandler: (Void -> Void)? = nil) -> ListsController {
+    open func listsControllerForCurrentConfigurationWithPathExtension(_ pathExtension: String, firstQueryHandler: ((Void) -> Void)? = nil) -> ListsController {
         let listCoordinator = listCoordinatorForCurrentConfigurationWithPathExtension(pathExtension, firstQueryHandler: firstQueryHandler)
         
-        return ListsController(listCoordinator: listCoordinator, delegateQueue: NSOperationQueue.mainQueue()) { lhs, rhs in
-            return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == NSComparisonResult.OrderedAscending
+        return ListsController(listCoordinator: listCoordinator, delegateQueue: OperationQueue.main) { lhs, rhs in
+            return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == ComparisonResult.orderedAscending
         }
     }
 
@@ -273,11 +273,11 @@ public class AppConfiguration {
         chosen local storage, a `ListsController` object will be returned that uses a local list coordinator.
         `lastPathComponent` is passed down to the list coordinator to filter results.
     */
-    public func listsControllerForCurrentConfigurationWithLastPathComponent(lastPathComponent: String, firstQueryHandler: (Void -> Void)? = nil) -> ListsController {
+    open func listsControllerForCurrentConfigurationWithLastPathComponent(_ lastPathComponent: String, firstQueryHandler: ((Void) -> Void)? = nil) -> ListsController {
         let listCoordinator = listCoordinatorForCurrentConfigurationWithLastPathComponent(lastPathComponent, firstQueryHandler: firstQueryHandler)
         
-        return ListsController(listCoordinator: listCoordinator, delegateQueue: NSOperationQueue.mainQueue()) { lhs, rhs in
-            return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == NSComparisonResult.OrderedAscending
+        return ListsController(listCoordinator: listCoordinator, delegateQueue: OperationQueue.main) { lhs, rhs in
+            return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == ComparisonResult.orderedAscending
         }
     }
     

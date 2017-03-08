@@ -61,15 +61,15 @@ class ListItemTests: XCTestCase {
     // MARK: NSCoding
     
     func testEncodingListItems() {
-        let archivedListItemData = NSKeyedArchiver.archivedDataWithRootObject(item)
+        let archivedListItemData = NSKeyedArchiver.archivedData(withRootObject: item)
 
-        XCTAssertTrue(archivedListItemData.length > 0)
+        XCTAssertTrue(archivedListItemData.count > 0)
     }
     
     func testDecodingListItems() {
-        let archivedListItemData = NSKeyedArchiver.archivedDataWithRootObject(item)
+        let archivedListItemData = NSKeyedArchiver.archivedData(withRootObject: item)
 
-        let unarchivedListItem = NSKeyedUnarchiver.unarchiveObjectWithData(archivedListItemData) as? ListItem
+        let unarchivedListItem = NSKeyedUnarchiver.unarchiveObject(with: archivedListItemData) as? ListItem
         
         XCTAssertNotNil(unarchivedListItem)
         

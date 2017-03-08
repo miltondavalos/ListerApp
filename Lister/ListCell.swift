@@ -15,7 +15,7 @@ class ListCell: UITableViewCell {
 
     @IBOutlet weak var listColorView: UIView!
     
-    override func setHighlighted(highlighted: Bool, animated: Bool) {
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
         let color = listColorView.backgroundColor!
         
         super.setHighlighted(highlighted, animated: animated)
@@ -24,7 +24,7 @@ class ListCell: UITableViewCell {
         listColorView.backgroundColor = color
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         let color = listColorView.backgroundColor!
         
         super.setSelected(selected, animated: animated)
@@ -33,6 +33,6 @@ class ListCell: UITableViewCell {
         listColorView.backgroundColor = color
         
         // Ensure that tapping on a selected cell doesn't re-trigger the display of the document.
-        userInteractionEnabled = !selected
+        isUserInteractionEnabled = !selected
     }
 }

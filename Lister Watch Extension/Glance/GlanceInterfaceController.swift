@@ -24,13 +24,13 @@ class GlanceInterfaceController: WKInterfaceController, ConnectivityListsControl
     
     var isPresenting = false
     
-    var listURL: NSURL?
+    var listURL: URL?
     
-    var presentedItemURL: NSURL? {
+    var presentedItemURL: URL? {
         return listURL
     }
     
-    var presentedItemOperationQueue = NSOperationQueue()
+    var presentedItemOperationQueue = OperationQueue()
     
     // Tracks underlying values that represent the badge.
     var previousPresentedBadgeCounts: (totalListItemCount: Int, completeListItemCount: Int)?
@@ -120,11 +120,11 @@ class GlanceInterfaceController: WKInterfaceController, ConnectivityListsControl
         }
     }
     
-    func processListInfoAsTodayDocument(listInfo: ListInfo) {
+    func processListInfoAsTodayDocument(_ listInfo: ListInfo) {
         listPresenter.delegate = self
         
-        let documentsURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-        listURL = documentsURL.URLByAppendingPathComponent("\(listInfo.name).\(AppConfiguration.listerFileExtension)")
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        listURL = documentsURL.appendingPathComponent("\(listInfo.name).\(AppConfiguration.listerFileExtension)")
         
         readTodayDocument()
     }
@@ -144,8 +144,8 @@ class GlanceInterfaceController: WKInterfaceController, ConnectivityListsControl
                     is passed instead of a URL because the `userInfo` dictionary of a WatchKit app's user activity
                     does not allow NSURL values.
                 */
-                let userInfo: [NSObject: AnyObject] = [
-                    AppConfiguration.UserActivity.listURLPathUserInfoKey: self.presentedItemURL!.path!,
+                let userInfo: [AnyHashable: Any] = [
+                    AppConfiguration.UserActivity.listURLPathUserInfoKey: self.presentedItemURL!.path,
                     AppConfiguration.UserActivity.listColorUserInfoKey: self.listPresenter.color.rawValue
                 ]
                 
@@ -181,7 +181,7 @@ class GlanceInterfaceController: WKInterfaceController, ConnectivityListsControl
         
         glanceBadgeGroup.setBackgroundImage(glanceBadge.groupBackgroundImage)
         glanceBadgeImage.setImageNamed(glanceBadge.imageName)
-        glanceBadgeImage.startAnimatingWithImagesInRange(glanceBadge.imageRange, duration: glanceBadge.animationDuration, repeatCount: 1)
+        glanceBadgeImage.startAnimatingWithImages(in: glanceBadge.imageRange, duration: glanceBadge.animationDuration, repeatCount: 1)
         
         /*
             Create a localized string for the # items remaining in the Glance badge. The string is retrieved
@@ -194,13 +194,13 @@ class GlanceInterfaceController: WKInterfaceController, ConnectivityListsControl
     
     // MARK: NSFilePresenter
     
-    func relinquishPresentedItemToWriter(writer: ((() -> Void)?) -> Void) {
+    func relinquishPresentedItem(toWriter writer: @escaping ((() -> Void)?) -> Void) {
         writer {
             self.readTodayDocument()
         }
     }
     
-    func presentedItemDidMoveToURL(newURL: NSURL) {
+    func presentedItemDidMove(to newURL: URL) {
         listURL = newURL
     }
 }

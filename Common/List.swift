@@ -25,7 +25,7 @@ final public class List: NSObject, NSCoding, NSCopying {
         String constants that are used to archive the stored properties of a `List`. These constants
         are used to help implement `NSCoding`.
     */
-    private struct SerializationKeys {
+    fileprivate struct SerializationKeys {
         static let items = "items"
         static let color = "color"
     }
@@ -43,18 +43,18 @@ final public class List: NSObject, NSCoding, NSCopying {
         - Red
     */
     public enum Color: Int, CustomStringConvertible {
-        case Gray, Blue, Green, Yellow, Orange, Red
+        case gray, blue, green, yellow, orange, red
         
         // MARK: Properties
 
         public var name: String {
             switch self {
-                case .Gray:     return "Gray"
-                case .Blue:     return "Blue"
-                case .Green:    return "Green"
-                case .Orange:   return "Orange"
-                case .Yellow:   return "Yellow"
-                case .Red:      return "Red"
+                case .gray:     return "Gray"
+                case .blue:     return "Blue"
+                case .green:    return "Green"
+                case .orange:   return "Orange"
+                case .yellow:   return "Yellow"
+                case .red:      return "Red"
             }
         }
 
@@ -83,7 +83,7 @@ final public class List: NSObject, NSCoding, NSCopying {
         - parameter items: The items that represent the underlying list. The `List` class copies the items
                       during initialization.
     */
-    public init(color: Color = .Gray, items: [ListItem] = []) {
+    public init(color: Color = .gray, items: [ListItem] = []) {
         self.color = color
         
         self.items = items.map { $0.copy() as! ListItem }
@@ -92,18 +92,18 @@ final public class List: NSObject, NSCoding, NSCopying {
     // MARK: NSCoding
     
     public required init(coder aDecoder: NSCoder) {
-        items = aDecoder.decodeObjectForKey(SerializationKeys.items) as! [ListItem]
-        color = Color(rawValue: aDecoder.decodeIntegerForKey(SerializationKeys.color))!
+        items = aDecoder.decodeObject(forKey: SerializationKeys.items) as! [ListItem]
+        color = Color(rawValue: aDecoder.decodeInteger(forKey: SerializationKeys.color))!
     }
     
-    public func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(items, forKey: SerializationKeys.items)
-        aCoder.encodeInteger(color.rawValue, forKey: SerializationKeys.color)
+    public func encode(with aCoder: NSCoder) {
+        aCoder.encode(items, forKey: SerializationKeys.items)
+        aCoder.encode(color.rawValue, forKey: SerializationKeys.color)
     }
     
     // MARK: NSCopying
     
-    public func copyWithZone(zone: NSZone) -> AnyObject  {
+    public func copy(with zone: NSZone?) -> Any  {
         return List(color: color, items: items)
     }
 
@@ -119,7 +119,7 @@ final public class List: NSObject, NSCoding, NSCopying {
         - returns:  `true` if the object is a `List` and it has the same color and items as the receiving
                   instance. `false` otherwise.
     */
-    override public func isEqual(object: AnyObject?) -> Bool {
+    override public func isEqual(_ object: Any?) -> Bool {
         if let list = object as? List {
             if color != list.color {
                 return false

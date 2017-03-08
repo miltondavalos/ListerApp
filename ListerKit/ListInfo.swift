@@ -8,31 +8,31 @@
 
 import UIKit
 
-public class ListInfo: NSObject {
+open class ListInfo: NSObject {
     // MARK: Properties
 
-    public let URL: NSURL
+    open let URL: Foundation.URL
     
-    public var color: List.Color?
+    open var color: List.Color?
 
-    public var name: String {
-        let displayName = NSFileManager.defaultManager().displayNameAtPath(URL.path!)
+    open var name: String {
+        let displayName = FileManager.default.displayName(atPath: URL.path)
 
-        return (displayName as NSString).stringByDeletingPathExtension
+        return (displayName as NSString).deletingPathExtension
     }
 
-    private let fetchQueue = dispatch_queue_create("com.example.apple-samplecode.listinfo", DISPATCH_QUEUE_SERIAL)
+    fileprivate let fetchQueue = DispatchQueue(label: "com.example.apple-samplecode.listinfo", attributes: [])
 
     // MARK: Initializers
 
-    public init(URL: NSURL) {
+    public init(URL: Foundation.URL) {
         self.URL = URL
     }
 
     // MARK: Fetch Methods
 
-    public func fetchInfoWithCompletionHandler(completionHandler: Void -> Void) {
-        dispatch_async(fetchQueue) {
+    open func fetchInfoWithCompletionHandler(_ completionHandler: @escaping (Void) -> Void) {
+        fetchQueue.async {
             // If the color hasn't been set yet, the info hasn't been fetched.
             if self.color != nil {
                 completionHandler()
@@ -41,12 +41,12 @@ public class ListInfo: NSObject {
             }
             
             ListUtilities.readListAtURL(self.URL) { list, error in
-                dispatch_async(self.fetchQueue) {
+                self.fetchQueue.async {
                     if let list = list {
                         self.color = list.color
                     }
                     else {
-                        self.color = .Gray
+                        self.color = .gray
                     }
                     
                     completionHandler()
@@ -57,7 +57,7 @@ public class ListInfo: NSObject {
     
     // MARK: NSObject
     
-    override public func isEqual(object: AnyObject?) -> Bool {
+    override open func isEqual(_ object: Any?) -> Bool {
         if let listInfo = object as? ListInfo {
             return listInfo.URL == URL
         }

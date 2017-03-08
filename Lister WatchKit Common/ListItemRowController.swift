@@ -24,15 +24,15 @@ class ListItemRowController: NSObject {
     
     // MARK: Methods
 
-    func setText(text: String) {
+    func setText(_ text: String) {
         textLabel.setText(text)
     }
     
-    func setTextColor(color: UIColor) {
+    func setTextColor(_ color: UIColor) {
         textLabel.setTextColor(color)
     }
     
-    func setCheckBoxImageNamed(imageName: String) {
+    func setCheckBoxImageNamed(_ imageName: String) {
         checkBox.setImageNamed(imageName)
     }
 }

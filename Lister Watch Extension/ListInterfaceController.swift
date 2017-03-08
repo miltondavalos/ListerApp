@@ -40,17 +40,17 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
     
     var isEditingDisabled = false
     
-    var listURL: NSURL?
+    var listURL: URL?
     
-    var presentedItemURL: NSURL? {
+    var presentedItemURL: URL? {
         return listURL
     }
     
-    var presentedItemOperationQueue = NSOperationQueue()
+    var presentedItemOperationQueue = OperationQueue()
     
     // MARK: Interface Table Selection
     
-    override func table(table: WKInterfaceTable, didSelectRowAtIndex rowIndex: Int) {
+    override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
         if isEditingDisabled { return }
         
         let listItem = listPresenter.presentedListItems[rowIndex]
@@ -79,8 +79,8 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
             }
         }
         else {
-            let indexSet = NSIndexSet(index: 0)
-            interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.noItems)
+            let indexSet = IndexSet(integer: 0)
+            interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.noItems)
         }
     }
     
@@ -95,24 +95,24 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
     }
     
     func listPresenter(_: ListPresenterType, didInsertListItem listItem: ListItem, atIndex index: Int) {
-        let indexSet = NSIndexSet(index: index)
+        let indexSet = IndexSet(integer: index)
         
         // The list presenter was previously empty. Remove the "no items" row.
         if index == 0 && listPresenter.count == 1 {
-            interfaceTable.removeRowsAtIndexes(indexSet)
+            interfaceTable.removeRows(at: indexSet)
         }
         
-        interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.item)
+        interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.item)
     }
     
     func listPresenter(_: ListPresenterType, didRemoveListItem listItem: ListItem, atIndex index: Int) {
-        let indexSet = NSIndexSet(index: index)
+        let indexSet = IndexSet(integer: index)
 
-        interfaceTable.removeRowsAtIndexes(indexSet)
+        interfaceTable.removeRows(at: indexSet)
         
         // The list presenter is now empty. Add the "no items" row.
         if index == 0 && listPresenter.isEmpty {
-            interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.noItems)
+            interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.noItems)
         }
     }
     
@@ -122,23 +122,23 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
     
     func listPresenter(_: ListPresenterType, didMoveListItem listItem: ListItem, fromIndex: Int, toIndex: Int) {
         // Remove the item from the fromIndex straight away.
-        let fromIndexSet = NSIndexSet(index: fromIndex)
+        let fromIndexSet = IndexSet(integer: fromIndex)
         
-        interfaceTable.removeRowsAtIndexes(fromIndexSet)
+        interfaceTable.removeRows(at: fromIndexSet)
         
         /*
             Determine where to insert the moved item. If the `toIndex` was beyond the `fromIndex`, normalize
             its value.
         */
-        var toIndexSet: NSIndexSet
+        var toIndexSet: IndexSet
         if toIndex > fromIndex {
-            toIndexSet = NSIndexSet(index: toIndex - 1)
+            toIndexSet = IndexSet(integer: toIndex - 1)
         }
         else {
-            toIndexSet = NSIndexSet(index: toIndex)
+            toIndexSet = IndexSet(integer: toIndex)
         }
         
-        interfaceTable.insertRowsAtIndexes(toIndexSet, withRowType: Storyboard.RowTypes.item)
+        interfaceTable.insertRows(at: toIndexSet, withRowType: Storyboard.RowTypes.item)
     }
     
     func listPresenter(_: ListPresenterType, didUpdateListColorWithColor color: List.Color) {
@@ -187,8 +187,8 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
                     is passed instead of a URL because the `userInfo` dictionary of a WatchKit app's user activity
                     does not allow NSURL values.
                 */
-                let userInfo: [NSObject: AnyObject] = [
-                    AppConfiguration.UserActivity.listURLPathUserInfoKey: self.presentedItemURL!.path!,
+                let userInfo: [AnyHashable: Any] = [
+                    AppConfiguration.UserActivity.listURLPathUserInfoKey: self.presentedItemURL!.path,
                     AppConfiguration.UserActivity.listColorUserInfoKey: self.listPresenter.color.rawValue
                 ]
                 
@@ -201,22 +201,22 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
         }
     }
     
-    func configureRowControllerAtIndex(index: Int) {
-        let listItemRowController = interfaceTable.rowControllerAtIndex(index) as! ListItemRowController
+    func configureRowControllerAtIndex(_ index: Int) {
+        let listItemRowController = interfaceTable.rowController(at: index) as! ListItemRowController
         
         let listItem = listPresenter.presentedListItems[index]
         
         listItemRowController.setText(listItem.text)
-        let textColor = listItem.isComplete ? UIColor.grayColor() : UIColor.whiteColor()
+        let textColor = listItem.isComplete ? UIColor.gray : UIColor.white
         listItemRowController.setTextColor(textColor)
         
         // Update the checkbox image.
         let state = listItem.isComplete ? "checked" : "unchecked"
-        let imageName = "checkbox-\(listPresenter.color.name.lowercaseString)-\(state)"
+        let imageName = "checkbox-\(listPresenter.color.name.lowercased())-\(state)"
         listItemRowController.setCheckBoxImageNamed(imageName)
     }
     
-    func saveUnsavedChangesWithCompletionHandler(complettionHandler: ((Bool) -> Void)?) {
+    func saveUnsavedChangesWithCompletionHandler(_ complettionHandler: ((Bool) -> Void)?) {
         if !hasUnsavedChanges {
             complettionHandler?(true)
             
@@ -231,10 +231,10 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
             else {
                 success = true
                 
-                let session = WCSession.defaultSession()
+                let session = WCSession.default()
                 
                 // Do not proceed if `session` is not currently `.Activated`.
-                guard session.activationState == .Activated else { return }
+                guard session.activationState == .activated else { return }
                 
                 for transfer in session.outstandingFileTransfers {
                     if transfer.file.fileURL == self.presentedItemURL! {
@@ -252,12 +252,12 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
     
     // MARK: Interface Life Cycle
     
-    override func awakeWithContext(context: AnyObject?) {
+    override func awake(withContext context: Any?) {
         precondition(context is ListInfo, "Expected class of `context` to be ListInfo.")
         
         let listInfo = context as! ListInfo
-        let documentsURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-        listURL = documentsURL.URLByAppendingPathComponent("\(listInfo.name).\(AppConfiguration.listerFileExtension)")
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        listURL = documentsURL.appendingPathComponent("\(listInfo.name).\(AppConfiguration.listerFileExtension)")
         
         // Set the title of the interface controller based on the list's name.
         setTitle(listInfo.name)
@@ -278,7 +278,7 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
     
     // MARK: NSFilePresenter
     
-    func relinquishPresentedItemToReader(reader: ((() -> Void)?) -> Void) {
+    func relinquishPresentedItem(toReader reader: @escaping ((() -> Void)?) -> Void) {
         isEditingDisabled = true
         
         reader {
@@ -286,7 +286,7 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
         }
     }
     
-    func relinquishPresentedItemToWriter(writer: ((() -> Void)?) -> Void) {
+    func relinquishPresentedItem(toWriter writer: @escaping ((() -> Void)?) -> Void) {
         isEditingDisabled = true
         
         writer {
@@ -298,13 +298,13 @@ class ListInterfaceController: WKInterfaceController, ListPresenterDelegate, NSF
         setupInterfaceTable()
     }
     
-    func savePresentedItemChangesWithCompletionHandler(completionHandler: (NSError?) -> Void) {
+    func savePresentedItemChanges(completionHandler: @escaping (Error?) -> Void) {
         saveUnsavedChangesWithCompletionHandler { success in
             completionHandler(nil)
         }
     }
     
-    func presentedItemDidMoveToURL(newURL: NSURL) {
+    func presentedItemDidMove(to newURL: URL) {
         listURL = newURL
     }
 }

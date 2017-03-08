@@ -9,12 +9,12 @@
 import UIKit
 import ListerWatchKit
 
-public class ListInfo: NSObject {
+open class ListInfo: NSObject {
     // MARK: Properties
     
-    public var name: String
+    open var name: String
     
-    public var color: List.Color
+    open var color: List.Color
     
     // MARK: Initializers
     
@@ -25,7 +25,7 @@ public class ListInfo: NSObject {
     
     // MARK: NSObject
     
-    override public func isEqual(object: AnyObject?) -> Bool {
+    override open func isEqual(_ object: Any?) -> Bool {
         if let listInfo = object as? ListInfo {
             return listInfo.name == name
         }

@@ -25,7 +25,7 @@ final public class ListItem: NSObject, NSCoding, NSCopying {
         String constants that are used to archive the stored properties of a `ListItem`. These
         constants are used to help implement `NSCoding`.
     */
-    private struct SerializationKeys {
+    fileprivate struct SerializationKeys {
         static let text = "text"
         static let uuid = "uuid"
         static let complete = "completed"
@@ -40,7 +40,7 @@ final public class ListItem: NSObject, NSCoding, NSCopying {
     public var isComplete: Bool
     
     /// An underlying identifier to distinguish one `ListItem` from another.
-    private var UUID: NSUUID
+    fileprivate var UUID: Foundation.UUID
     
     // MARK: Initializers
     
@@ -53,7 +53,7 @@ final public class ListItem: NSObject, NSCoding, NSCopying {
         - parameter complete: The item's initial completion state.
         - parameter UUID: The item's initial UUID.
     */
-    private init(text: String, complete: Bool, UUID: NSUUID) {
+    fileprivate init(text: String, complete: Bool, UUID: Foundation.UUID) {
         self.text = text
         self.isComplete = complete
         self.UUID = UUID
@@ -66,7 +66,7 @@ final public class ListItem: NSObject, NSCoding, NSCopying {
         - parameter complete: The item's initial completion state.
     */
     public convenience init(text: String, complete: Bool) {
-        self.init(text: text, complete: complete, UUID: NSUUID())
+        self.init(text: text, complete: complete, UUID: Foundation.UUID())
     }
     
     /**
@@ -81,22 +81,22 @@ final public class ListItem: NSObject, NSCoding, NSCopying {
     
     // MARK: NSCopying
     
-    public func copyWithZone(zone: NSZone) -> AnyObject  {
+    public func copy(with zone: NSZone?) -> Any  {
         return ListItem(text: text, complete: isComplete, UUID: UUID)
     }
     
     // MARK: NSCoding
     
     public required init(coder aDecoder: NSCoder) {
-        text = aDecoder.decodeObjectForKey(SerializationKeys.text) as! String
-        isComplete = aDecoder.decodeBoolForKey(SerializationKeys.complete)
-        UUID = aDecoder.decodeObjectForKey(SerializationKeys.uuid) as! NSUUID
+        text = aDecoder.decodeObject(forKey: SerializationKeys.text) as! String
+        isComplete = aDecoder.decodeBool(forKey: SerializationKeys.complete)
+        UUID = aDecoder.decodeObject(forKey: SerializationKeys.uuid) as! Foundation.UUID
     }
     
-    public func encodeWithCoder(encoder: NSCoder) {
-        encoder.encodeObject(text, forKey: SerializationKeys.text)
-        encoder.encodeBool(isComplete, forKey: SerializationKeys.complete)
-        encoder.encodeObject(UUID, forKey: SerializationKeys.uuid)
+    public func encode(with encoder: NSCoder) {
+        encoder.encode(text, forKey: SerializationKeys.text)
+        encoder.encode(isComplete, forKey: SerializationKeys.complete)
+        encoder.encode(UUID, forKey: SerializationKeys.uuid)
     }
     
     /**
@@ -104,7 +104,7 @@ final public class ListItem: NSObject, NSCoding, NSCopying {
         to refreshIdentity() is made afterward, the items will no longer be equal.
     */
     public func refreshIdentity() {
-        UUID = NSUUID()
+        UUID = Foundation.UUID()
     }
     
     // MARK: Overrides
@@ -119,7 +119,7 @@ final public class ListItem: NSObject, NSCoding, NSCopying {
         - returns:  `true` if the object is a `ListItem` and it has the same underlying identity as the
                   receiving instance. `false` otherwise.
     */
-    override public func isEqual(object: AnyObject?) -> Bool {
+    override public func isEqual(_ object: Any?) -> Bool {
         if let item = object as? ListItem {
             return UUID == item.UUID
         }

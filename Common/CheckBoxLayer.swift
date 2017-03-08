@@ -12,7 +12,7 @@ class CheckBoxLayer: CALayer {
     // MARK: Types
 
     struct SharedColors {
-        static let defaultTintColor = CGColorCreate(CGColorSpaceCreateDeviceRGB(), [0.5, 0.5, 0.5])!
+        static let defaultTintColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [0.5, 0.5, 0.5])!
     }
     
     // MARK: Properties
@@ -48,8 +48,8 @@ class CheckBoxLayer: CALayer {
     }
 
     // The method that does the heavy lifting of check box drawing code.
-    override func drawInContext(context: CGContext) {
-        super.drawInContext(context)
+    override func draw(in context: CGContext) {
+        super.draw(in: context)
         
         let size = min(bounds.width, bounds.height)
         
@@ -64,7 +64,7 @@ class CheckBoxLayer: CALayer {
         else {
             xTranslate = (bounds.width - size) / 2.0
         }
-        transform = CGAffineTransformTranslate(transform, xTranslate, yTranslate)
+        transform = transform.translatedBy(x: xTranslate, y: yTranslate)
 
         let strokeWidth: CGFloat = strokeFactor * size
         let checkBoxInset: CGFloat = insetFactor * size
@@ -72,16 +72,16 @@ class CheckBoxLayer: CALayer {
         // Create the outer border for the check box.
         let outerDimension: CGFloat = size - 2.0 * checkBoxInset
         var checkBoxRect = CGRect(x: checkBoxInset, y: checkBoxInset, width: outerDimension, height: outerDimension)
-        checkBoxRect = CGRectApplyAffineTransform(checkBoxRect, transform)
+        checkBoxRect = checkBoxRect.applying(transform)
 
         // Make the desired width of the outer box.
-        CGContextSetLineWidth(context, strokeWidth)
+        context.setLineWidth(strokeWidth)
         
         // Set the tint color of the outer box.
-        CGContextSetStrokeColorWithColor(context, tintColor)
+        context.setStrokeColor(tintColor)
         
         // Draw the outer box.
-        CGContextStrokeRect(context, checkBoxRect)
+        context.stroke(checkBoxRect)
         
         // Draw the inner box if it's checked.
         if isChecked {
@@ -89,10 +89,10 @@ class CheckBoxLayer: CALayer {
             
             let markDimension: CGFloat = size - 2.0 * markInset
             var markRect = CGRect(x: markInset, y: markInset, width: markDimension, height: markDimension)
-            markRect = CGRectApplyAffineTransform(markRect, transform)
+            markRect = markRect.applying(transform)
             
-            CGContextSetFillColorWithColor(context, tintColor)
-            CGContextFillRect(context, markRect)
+            context.setFillColor(tintColor)
+            context.fill(markRect)
         }
     }
 }

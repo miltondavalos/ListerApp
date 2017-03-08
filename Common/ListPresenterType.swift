@@ -52,7 +52,7 @@ public protocol ListPresenterType: class {
         
         - parameter list: The new list that the `ListPresenterType` should present.
     */
-    func setList(list: List)
+    func setList(_ list: List)
     
     /**
         The color of the presented list. If the new color is different from the old color, notify the delegate

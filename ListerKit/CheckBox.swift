@@ -8,10 +8,10 @@
 
 import UIKit
 
-@IBDesignable public class CheckBox: UIControl {
+@IBDesignable open class CheckBox: UIControl {
     // MARK: Properties
     
-    @IBInspectable public var isChecked: Bool {
+    @IBInspectable open var isChecked: Bool {
         get {
             return checkBoxLayer.isChecked
         }
@@ -21,7 +21,7 @@ import UIKit
         }
     }
 
-    @IBInspectable public var strokeFactor: CGFloat {
+    @IBInspectable open var strokeFactor: CGFloat {
         set {
             checkBoxLayer.strokeFactor = newValue
         }
@@ -31,7 +31,7 @@ import UIKit
         }
     }
     
-    @IBInspectable public var insetFactor: CGFloat {
+    @IBInspectable open var insetFactor: CGFloat {
         set {
             checkBoxLayer.insetFactor = newValue
         }
@@ -41,7 +41,7 @@ import UIKit
         }
     }
     
-    @IBInspectable public var markInsetFactor: CGFloat {
+    @IBInspectable open var markInsetFactor: CGFloat {
         set {
             checkBoxLayer.markInsetFactor = newValue
         }
@@ -53,20 +53,20 @@ import UIKit
     
     // MARK: Overrides
     
-    override public func didMoveToWindow() {
+    override open func didMoveToWindow() {
         if let window = window {
             contentScaleFactor = window.screen.scale
         }
     }
 
-    override public class func layerClass() -> AnyClass {
+    override open class var layerClass : AnyClass {
         return CheckBoxLayer.self
     }
     
-    override public func tintColorDidChange() {
+    override open func tintColorDidChange() {
         super.tintColorDidChange()
         
-        checkBoxLayer.tintColor = tintColor.CGColor
+        checkBoxLayer.tintColor = tintColor.cgColor
     }
 
     // MARK: Convenience

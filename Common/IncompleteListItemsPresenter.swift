@@ -31,10 +31,10 @@ final public class IncompleteListItemsPresenter: NSObject, ListPresenterType {
     // MARK: Properties
 
     /// The internal storage for the list that we're presenting. By default, it's an empty list.
-    private var list = List()
+    fileprivate var list = List()
     
     /// Flag to see whether or not the first `setList(_:)` call should trigger a batch reload.
-    private var isInitialList = true
+    fileprivate var isInitialList = true
 
     /**
         A cached array of the list items that should be presented. When the presenter initially has its
@@ -44,7 +44,7 @@ final public class IncompleteListItemsPresenter: NSObject, ListPresenterType {
         `_presentedListItems` since there's already a readonly `presentedListItems` property (which returns the
         value of `_presentedListItems`).
     */
-    private var _presentedListItems = [ListItem]()
+    fileprivate var _presentedListItems = [ListItem]()
     
     // MARK: ListPresenterType
     
@@ -74,7 +74,7 @@ final public class IncompleteListItemsPresenter: NSObject, ListPresenterType {
         implementation detail). If the list is the initial list to be presented, we just reload all of the
         data.
     */
-    public func setList(newList: List) {
+    public func setList(_ newList: List) {
         // If this is the initial list that's being presented, just tell the delegate to reload all of the data.
         if isInitialList {
             isInitialList = false
@@ -178,14 +178,14 @@ final public class IncompleteListItemsPresenter: NSObject, ListPresenterType {
         
         - parameter listItem: The list item to toggle.
     */
-    public func toggleListItem(listItem: ListItem) {
+    public func toggleListItem(_ listItem: ListItem) {
         precondition(presentedListItems.contains(listItem), "The list item must already be in the presented list items.")
         
         delegate?.listPresenterWillChangeListLayout(self, isInitialLayout: false)
         
         listItem.isComplete = !listItem.isComplete
         
-        let currentIndex = presentedListItems.indexOf(listItem)!
+        let currentIndex = presentedListItems.index(of: listItem)!
         
         delegate?.listPresenter(self, didUpdateListItem: listItem, atIndex: currentIndex)
         
@@ -200,7 +200,7 @@ final public class IncompleteListItemsPresenter: NSObject, ListPresenterType {
 
         - parameter completionState: The value that all presented list item instances should have as their `isComplete` property.
     */
-    public func updatePresentedListItemsToCompletionState(completionState: Bool) {
+    public func updatePresentedListItemsToCompletionState(_ completionState: Bool) {
         let presentedListItemsNotMatchingCompletionState = presentedListItems.filter { $0.isComplete != completionState }
         
         // If there are no list items that match the completion state, it's a no op.
@@ -211,7 +211,7 @@ final public class IncompleteListItemsPresenter: NSObject, ListPresenterType {
         for listItem in presentedListItemsNotMatchingCompletionState {
             listItem.isComplete = !listItem.isComplete
             
-            let indexOfListItem = presentedListItems.indexOf(listItem)!
+            let indexOfListItem = presentedListItems.index(of: listItem)!
             
             delegate?.listPresenter(self, didUpdateListItem: listItem, atIndex: indexOfListItem)
         }

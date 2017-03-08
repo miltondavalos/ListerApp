@@ -2094,10 +2094,12 @@
 				TargetAttributes = {
 					1611C5E71A925C1D00472891 = {
 						CreatedOnToolsVersion = 6.2;
+						LastSwiftMigration = 0820;
 						TestTargetID = 16CBDAA618F6EE3A00233D3C;
 					};
 					16A9851B1936EEA5007B7F37 = {
 						CreatedOnToolsVersion = 6.0;
+						LastSwiftMigration = 0820;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -2108,6 +2110,7 @@
 						};
 					};
 					16CBDAA618F6EE3A00233D3C = {
+						LastSwiftMigration = 0820;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -2119,18 +2122,22 @@
 					};
 					16CD55E01B127D2400DB4F4F = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0820;
 					};
 					16CD55EC1B127D2400DB4F4F = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0820;
 					};
 					16CD560B1B127DDC00DB4F4F = {
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0820;
 					};
 					16EE5953192016410052916A = {
 						CreatedOnToolsVersion = 6.0;
+						LastSwiftMigration = 0820;
 					};
 					16F60BF01A854A640028B2D8 = {
 						CreatedOnToolsVersion = 6.2;
+						LastSwiftMigration = 0820;
 						SystemCapabilities = {
 							com.apple.iCloud = {
 								enabled = 1;
@@ -2142,6 +2149,7 @@
 					};
 					3E251756197F7A0400B8AF96 = {
 						CreatedOnToolsVersion = 6.0;
+						LastSwiftMigration = 0820;
 						TestTargetID = 16CBDAA618F6EE3A00233D3C;
 					};
 					3E251766197F7A1400B8AF96 = {
@@ -2815,7 +2823,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "${LISTER_BUNDLE_PREFIX}.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lister.app/Lister";
 			};
 			name = Debug;
@@ -2832,7 +2840,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "${LISTER_BUNDLE_PREFIX}.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lister.app/Lister";
 			};
 			name = Release;
@@ -2852,7 +2860,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(LISTER_BUNDLE_PREFIX).Lister.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Lister;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2869,7 +2877,7 @@
 				PRODUCT_NAME = Lister;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -2969,7 +2977,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "${LISTER_BUNDLE_PREFIX}.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2986,7 +2994,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -3007,6 +3015,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 			};
 			name = Debug;
@@ -3026,6 +3035,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 			};
 			name = Release;
@@ -3045,7 +3055,7 @@
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 			};
 			name = Debug;
@@ -3065,7 +3075,7 @@
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 			};
 			name = Release;
@@ -3091,7 +3101,7 @@
 				PRODUCT_NAME = ListerWatchKit;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3119,7 +3129,7 @@
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3150,7 +3160,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3177,7 +3187,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3238,7 +3248,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "${LISTER_BUNDLE_PREFIX}.Lister.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -3254,7 +3264,7 @@
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -3272,7 +3282,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "${LISTER_BUNDLE_PREFIX}.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lister.app/Lister";
 			};
 			name = Debug;
@@ -3288,7 +3298,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "${LISTER_BUNDLE_PREFIX}.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lister.app/Lister";
 			};
 			name = Release;

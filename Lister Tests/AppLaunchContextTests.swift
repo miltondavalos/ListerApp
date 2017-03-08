@@ -20,16 +20,16 @@ class AppLaunchContextTests: XCTestCase {
     
     // MARK: Properties
     
-    var listURLs = [NSURL]()
+    var listURLs = [URL]()
     
-    var color = List.Color.Blue
+    var color = List.Color.blue
     
     // MARK: Setup
     
     override func setUp() {
         super.setUp()
         
-        listURLs = NSBundle.mainBundle().URLsForResourcesWithExtension(AppConfiguration.listerFileExtension, subdirectory: "") ?? []
+        listURLs = Bundle.main.urls(forResourcesWithExtension: AppConfiguration.listerFileExtension, subdirectory: "") ?? []
     }
     
     // MARK: Initializers
@@ -37,7 +37,7 @@ class AppLaunchContextTests: XCTestCase {
     func testUserActivityInitializerWithNSUserActivityDocumentURLKey() {
         let userActivity = NSUserActivity(activityType: UserActivity.testing)
         
-        userActivity.addUserInfoEntriesFromDictionary([
+        userActivity.addUserInfoEntries(from: [
             NSUserActivityDocumentURLKey: listURLs.first!,
             AppConfiguration.UserActivity.listColorUserInfoKey: color.rawValue
         ])
@@ -56,7 +56,7 @@ class AppLaunchContextTests: XCTestCase {
     func testUserActivityInitializerWithAppConfigurationUserActivitylistURLPathUserInfoKey() {
         let userActivity = NSUserActivity(activityType: UserActivity.testing)
         
-        userActivity.addUserInfoEntriesFromDictionary([
+        userActivity.addUserInfoEntries(from: [
             AppConfiguration.UserActivity.listURLPathUserInfoKey: listURLs.first!.path!,
             AppConfiguration.UserActivity.listColorUserInfoKey: color.rawValue
             ])
@@ -75,7 +75,7 @@ class AppLaunchContextTests: XCTestCase {
     func testUserActivityInitializerPrefersNSUserActivityDocumentURLKey() {
         let userActivity = NSUserActivity(activityType: UserActivity.testing)
         
-        userActivity.addUserInfoEntriesFromDictionary([
+        userActivity.addUserInfoEntries(from: [
             NSUserActivityDocumentURLKey: listURLs.first!,
             AppConfiguration.UserActivity.listURLPathUserInfoKey: listURLs.last!.path!,
             AppConfiguration.UserActivity.listColorUserInfoKey: color.rawValue
@@ -94,16 +94,16 @@ class AppLaunchContextTests: XCTestCase {
     
     func testListerURLSchemeInitializer() {
         // Construct a URL with the lister scheme and the file path of the document.
-        let urlComponents = NSURLComponents()
+        var urlComponents = URLComponents()
         urlComponents.scheme = AppConfiguration.ListerScheme.name
-        urlComponents.path = listURLs.first!.path!
+        urlComponents.path = listURLs.first!.path
         
         // Add a query item to encode the color associated with the list.
         let colorQueryValue = "\(color.rawValue)"
-        let colorQueryItem = NSURLQueryItem(name: AppConfiguration.ListerScheme.colorQueryKey, value: colorQueryValue)
+        let colorQueryItem = URLQueryItem(name: AppConfiguration.ListerScheme.colorQueryKey, value: colorQueryValue)
         urlComponents.queryItems = [colorQueryItem]
         
-        let possibleLaunchContext = AppLaunchContext(listerURL: urlComponents.URL!)
+        let possibleLaunchContext = AppLaunchContext(listerURL: urlComponents.url!)
         
         XCTAssertNotNil(possibleLaunchContext)
         

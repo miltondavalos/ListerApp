@@ -27,7 +27,7 @@ import ListerWatchKit
         
         - parameter listsController:The `ConnectivityListsController` instance that will change its content.
     */
-    optional func listsControllerWillChangeContent(listsController: ConnectivityListsController)
+    @objc optional func listsControllerWillChangeContent(_ listsController: ConnectivityListsController)
     
     /**
         Notifies the receiver of this method that the lists controller is tracking a new `ListInfo`
@@ -37,7 +37,7 @@ import ListerWatchKit
         - parameter listInfo:The new `ListInfo` object that has been inserted at `index`.
         - parameter index:The index that `listInfo` was inserted at.
     */
-    optional func listsController(listsController: ConnectivityListsController, didInsertListInfo listInfo: ListInfo, atIndex index: Int)
+    @objc optional func listsController(_ listsController: ConnectivityListsController, didInsertListInfo listInfo: ListInfo, atIndex index: Int)
     
     /**
         Notifies the receiver of this method that the lists controller is no longer tracking `listInfo`.
@@ -47,7 +47,7 @@ import ListerWatchKit
         - parameter listInfo:The removed `ListInfo` object.
         - parameter index:The index that `listInfo` was removed at.
     */
-    optional func listsController(listsController: ConnectivityListsController, didRemoveListInfo listInfo: ListInfo, atIndex index: Int)
+    @objc optional func listsController(_ listsController: ConnectivityListsController, didRemoveListInfo listInfo: ListInfo, atIndex index: Int)
     
     /**
         Notifies the receiver of this method that the lists controller received a message that `listInfo`
@@ -58,7 +58,7 @@ import ListerWatchKit
         - parameter listInfo:The `ListInfo` object that has been updated.
         - parameter index:The index of `listInfo,` the updated `ListInfo`.
     */
-    optional func listsController(listsController: ConnectivityListsController, didUpdateListInfo listInfo: ListInfo, atIndex index: Int)
+    @objc optional func listsController(_ listsController: ConnectivityListsController, didUpdateListInfo listInfo: ListInfo, atIndex index: Int)
     
     /**
         Notifies the receiver of this method that the lists controller did change it's contents in some form.
@@ -67,7 +67,7 @@ import ListerWatchKit
         
         - parameter listsController:The `ConnectivityListsController` instance that did change its content.
     */
-    optional func listsControllerDidChangeContent(listsController: ConnectivityListsController)
+    @objc optional func listsControllerDidChangeContent(_ listsController: ConnectivityListsController)
 }
 
 /**
@@ -77,33 +77,33 @@ import ListerWatchKit
     application to deal with `ListInfo` objects rather than the various types that `WCSession` may directly
     vend instances of. In essence, the work of a lists controller is to "front" the device's default WCSession.
 */
-public class ConnectivityListsController: NSObject, WCSessionDelegate {
+open class ConnectivityListsController: NSObject, WCSessionDelegate {
     // MARK: Properties
     
     /**
         The `ConnectivityListsController` object's delegate who is responsible for responding to `ListsController`
         changes.
     */
-    public weak var delegate: ConnectivityListsControllerDelegate?
+    open weak var delegate: ConnectivityListsControllerDelegate?
     
     /**
         - returns: The number of tracked `ListInfo` objects.
     */
-    public var count: Int {
+    open var count: Int {
         var listInfosCount: Int!
         
-        dispatch_sync(listInfoQueue) {
+        listInfoQueue.sync {
             listInfosCount = self.listInfos.count
         }
         
         return listInfosCount
     }
     
-    private var listInfos = [ListInfo]()
+    fileprivate var listInfos = [ListInfo]()
     
-    private let listInfoQueue = dispatch_queue_create("com.example.apple-samplecode.lister.listscontroller", DISPATCH_QUEUE_SERIAL)
+    fileprivate let listInfoQueue = DispatchQueue(label: "com.example.apple-samplecode.lister.listscontroller", attributes: [])
     
-    private let predicate: ((ListInfo) -> Bool)?
+    fileprivate let predicate: ((ListInfo) -> Bool)?
     
     // MARK: Initializers
     
@@ -133,10 +133,10 @@ public class ConnectivityListsController: NSObject, WCSessionDelegate {
         Begin listening for changes to the tracked `ListInfo` objects. Be sure to balance each call to
         `-startSearching` with a call to `-stopSearching`.
     */
-    public func startSearching() {
+    open func startSearching() {
         if WCSession.isSupported() {
-            WCSession.defaultSession().delegate = self
-            WCSession.defaultSession().activateSession()
+            WCSession.default().delegate = self
+            WCSession.default().activate()
         }
     }
     
@@ -144,7 +144,7 @@ public class ConnectivityListsController: NSObject, WCSessionDelegate {
         Stop listening for changes to the tracked `ListInfo` objects. Each call to `-startSearching` should
         be balanced with a call to this method.
     */
-    public func stopSearching() {
+    open func stopSearching() {
         delegate = nil
     }
     
@@ -154,11 +154,11 @@ public class ConnectivityListsController: NSObject, WCSessionDelegate {
         - returns: The `ListInfo` instance at a specific index. This method traps if the index is out
         of bounds.
     */
-    public subscript(idx: Int) -> ListInfo {
+    open subscript(idx: Int) -> ListInfo {
         // Fetch the appropriate list info protected by `listInfoQueue`.
         var listInfo: ListInfo!
         
-        dispatch_sync(listInfoQueue) {
+        listInfoQueue.sync {
             listInfo = self.listInfos[idx]
         }
         
@@ -167,25 +167,25 @@ public class ConnectivityListsController: NSObject, WCSessionDelegate {
     
     // MARK: WCSessionDelegate
     
-    public func session(session: WCSession, activationDidCompleteWithState activationState: WCSessionActivationState, error: NSError?) {
+    open func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if let error = error {
             print("session activation failed with error: \(error.localizedDescription)")
             return
         }
         
         // Do not proceed if `session` is not currently `.Activated`.
-        guard session.activationState == .Activated else { return }
+        guard session.activationState == .activated else { return }
         
         if !session.receivedApplicationContext.isEmpty {
-            processApplicationContext(WCSession.defaultSession().receivedApplicationContext)
+            processApplicationContext(WCSession.default().receivedApplicationContext as [String : AnyObject])
         }
     }
     
-    public func session(session: WCSession, didReceiveApplicationContext applicationContext: [String: AnyObject]) {
-        processApplicationContext(applicationContext)
+    open func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        processApplicationContext(applicationContext as [String : AnyObject])
     }
     
-    private func processApplicationContext(applicationContext: [String: AnyObject]) {
+    fileprivate func processApplicationContext(_ applicationContext: [String: AnyObject]) {
         let lists: [[String: AnyObject]] = applicationContext[AppConfiguration.ApplicationActivityContext.currentListsKey] as! [[String: AnyObject]]
         
         var changedListInfos = lists.map {
@@ -203,20 +203,20 @@ public class ConnectivityListsController: NSObject, WCSessionDelegate {
         let updated = updatedListInfosToChangedListInfos(changedListInfos)
         
         for listInfoToRemove in removed {
-            let indexOfListInfoToRemove = listInfos.indexOf(listInfoToRemove)!
+            let indexOfListInfoToRemove = listInfos.index(of: listInfoToRemove)!
             
-            listInfos.removeAtIndex(indexOfListInfoToRemove)
+            listInfos.remove(at: indexOfListInfoToRemove)
             delegate?.listsController?(self, didRemoveListInfo: listInfoToRemove, atIndex: indexOfListInfoToRemove)
         }
         
-        for (indexOfListInfoToInsert, listInfoToInsert) in inserted.enumerate() {
-            listInfos.insert(listInfoToInsert, atIndex: indexOfListInfoToInsert)
+        for (indexOfListInfoToInsert, listInfoToInsert) in inserted.enumerated() {
+            listInfos.insert(listInfoToInsert, at: indexOfListInfoToInsert)
             
             delegate?.listsController?(self, didInsertListInfo: listInfoToInsert, atIndex: indexOfListInfoToInsert)
         }
         
         for listInfoToUpdate in updated {
-            let indexOfListInfoToUpdate = listInfos.indexOf(listInfoToUpdate)!
+            let indexOfListInfoToUpdate = listInfos.index(of: listInfoToUpdate)!
             
             listInfos[indexOfListInfoToUpdate] = listInfoToUpdate
             delegate?.listsController?(self, didUpdateListInfo: listInfoToUpdate, atIndex: indexOfListInfoToUpdate)
@@ -225,11 +225,11 @@ public class ConnectivityListsController: NSObject, WCSessionDelegate {
         delegate?.listsControllerDidChangeContent?(self)
     }
     
-    public func session(session: WCSession, didReceiveFile file: WCSessionFile) {
+    open func session(_ session: WCSession, didReceive file: WCSessionFile) {
         copyURLToDocumentsDirectory(file.fileURL)
     }
     
-    public func session(session: WCSession, didFinishFileTransfer fileTransfer: WCSessionFileTransfer, error: NSError?) {
+    open func session(_ session: WCSession, didFinish fileTransfer: WCSessionFileTransfer, error: Error?) {
         if error != nil {
             print("\(#function), file: \(fileTransfer.file.fileURL), error: \(error!.localizedDescription)")
         }
@@ -237,26 +237,26 @@ public class ConnectivityListsController: NSObject, WCSessionDelegate {
     
     // MARK: Convenience
     
-    private func copyURLToDocumentsDirectory(URL: NSURL) {
-        let documentsURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-        let toURL = documentsURL.URLByAppendingPathComponent(URL.lastPathComponent!)!
+    fileprivate func copyURLToDocumentsDirectory(_ URL: Foundation.URL) {
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let toURL = documentsURL.appendingPathComponent(URL.lastPathComponent)
         
         ListUtilities.copyFromURL(URL, toURL: toURL)
     }
     
     // MARK: List Differencing
     
-    private func removedListInfosToChangedListInfos(changedListInfos: [ListInfo]) -> [ListInfo] {
+    fileprivate func removedListInfosToChangedListInfos(_ changedListInfos: [ListInfo]) -> [ListInfo] {
         return listInfos.filter { !changedListInfos.contains($0) }
     }
     
-    private func insertedListInfosToChangedListInfos(changedListInfos: [ListInfo]) -> [ListInfo] {
+    fileprivate func insertedListInfosToChangedListInfos(_ changedListInfos: [ListInfo]) -> [ListInfo] {
         return changedListInfos.filter { !self.listInfos.contains($0) }
     }
     
-    private func updatedListInfosToChangedListInfos(changedListInfos: [ListInfo]) -> [ListInfo] {
+    fileprivate func updatedListInfosToChangedListInfos(_ changedListInfos: [ListInfo]) -> [ListInfo] {
         return changedListInfos.filter { changedListInfo in
-            if let indexOfChangedListInfoInInitialListInfo = self.listInfos.indexOf(changedListInfo) {
+            if let indexOfChangedListInfoInInitialListInfo = self.listInfos.index(of: changedListInfo) {
                 let initialListInfo = self.listInfos[indexOfChangedListInfoInInitialListInfo]
                 
                 if initialListInfo.color != changedListInfo.color {

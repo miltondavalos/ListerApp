@@ -11,20 +11,20 @@ import WatchConnectivity
 
 /// Protocol that allows a list document to notify other objects of it being deleted.
 @objc public protocol ListDocumentDelegate {
-    func listDocumentWasDeleted(listDocument: ListDocument)
+    func listDocumentWasDeleted(_ listDocument: ListDocument)
 }
 
-public class ListDocument: UIDocument {
+open class ListDocument: UIDocument {
     // MARK: Properties
 
-    public weak var delegate: ListDocumentDelegate?
+    open weak var delegate: ListDocumentDelegate?
     
     // Use a default, empty list.
-    public var listPresenter: ListPresenterType?
+    open var listPresenter: ListPresenterType?
 
     // MARK: Initializers
     
-    public init(fileURL URL: NSURL, listPresenter: ListPresenterType? = nil) {
+    public init(fileURL URL: Foundation.URL, listPresenter: ListPresenterType? = nil) {
         self.listPresenter = listPresenter
 
         super.init(fileURL: URL)
@@ -32,14 +32,14 @@ public class ListDocument: UIDocument {
 
     // MARK: Serialization / Deserialization
 
-    override public func loadFromContents(contents: AnyObject, ofType typeName: String?) throws {
-        if let unarchivedList = NSKeyedUnarchiver.unarchiveObjectWithData(contents as! NSData) as? List {
+    override open func load(fromContents contents: Any, ofType typeName: String?) throws {
+        if let unarchivedList = NSKeyedUnarchiver.unarchiveObject(with: contents as! Data) as? List {
             /*
                 This method is called on the queue that the `openWithCompletionHandler(_:)` method was called
                 on (typically, the main queue). List presenter operations are main queue only, so explicitly
                 call on the main queue.
             */
-            dispatch_async(dispatch_get_main_queue()) {
+            DispatchQueue.main.async {
                 self.listPresenter?.setList(unarchivedList)
                 
                 return
@@ -54,9 +54,9 @@ public class ListDocument: UIDocument {
         ])
     }
 
-    override public func contentsForType(typeName: String) throws -> AnyObject {
+    override open func contents(forType typeName: String) throws -> Any {
         if let archiveableList = listPresenter?.archiveableList {
-            return NSKeyedArchiver.archivedDataWithRootObject(archiveableList)
+            return NSKeyedArchiver.archivedData(withRootObject: archiveableList)
         }
 
         throw NSError(domain: "ListDocumentDomain", code: -1, userInfo: [
@@ -67,18 +67,18 @@ public class ListDocument: UIDocument {
     
     // MARK: Saving
     
-    override public func saveToURL(url: NSURL, forSaveOperation saveOperation: UIDocumentSaveOperation, completionHandler: ((Bool) -> Void)?) {
-        super.saveToURL(url, forSaveOperation: saveOperation) { success in
+    override open func save(to url: URL, for saveOperation: UIDocumentSaveOperation, completionHandler: ((Bool) -> Void)?) {
+        super.save(to: url, for: saveOperation) { success in
             // If `WCSession` isn't supported there is nothing else required.
             guard WCSession.isSupported() else {
                 completionHandler?(success)
                 return
             }
             
-            let session = WCSession.defaultSession()
+            let session = WCSession.default()
             
             // Do not proceed if `session` is not currently `.Activated` or the watch app is not installed.
-            guard session.activationState == .Activated && session.watchAppInstalled else {
+            guard session.activationState == .activated && session.isWatchAppInstalled else {
                 completionHandler?(success)
                 return
             }
@@ -86,23 +86,23 @@ public class ListDocument: UIDocument {
             // On a successful save, transfer the file to the paired watch if appropriate.
             if success {
                 let fileCoordinator = NSFileCoordinator()
-                let readingIntent = NSFileAccessIntent.readingIntentWithURL(url, options: [])
-                fileCoordinator.coordinateAccessWithIntents([readingIntent], queue: NSOperationQueue()) { accessError in
+                let readingIntent = NSFileAccessIntent.readingIntent(with: url, options: [])
+                fileCoordinator.coordinate(with: [readingIntent], queue: OperationQueue()) { accessError in
                     if accessError != nil {
                         return
                     }
                     
                     // Do not proceed if `session` is not currently `.Activated`.
-                    guard session.activationState == .Activated else { return }
+                    guard session.activationState == .activated else { return }
                     
                     for transfer in session.outstandingFileTransfers {
-                        if transfer.file.fileURL == readingIntent.URL {
+                        if transfer.file.fileURL == readingIntent.url {
                             transfer.cancel()
                             break
                         }
                     }
                     
-                    session.transferFile(readingIntent.URL, metadata: nil)
+                    session.transferFile(readingIntent.url, metadata: nil)
                 }
             }
             
@@ -112,19 +112,19 @@ public class ListDocument: UIDocument {
     
     // MARK: Deletion
 
-    override public func accommodatePresentedItemDeletionWithCompletionHandler(completionHandler: NSError? -> Void) {
-        super.accommodatePresentedItemDeletionWithCompletionHandler(completionHandler)
+    override open func accommodatePresentedItemDeletion(completionHandler: @escaping (Error?) -> Void) {
+        super.accommodatePresentedItemDeletion(completionHandler: completionHandler)
         
         delegate?.listDocumentWasDeleted(self)
     }
     
     // MARK: Handoff
     
-    override public func updateUserActivityState(userActivity: NSUserActivity) {
+    override open func updateUserActivityState(_ userActivity: NSUserActivity) {
         super.updateUserActivityState(userActivity)
         
         if let rawColorValue = listPresenter?.color.rawValue {
-            userActivity.addUserInfoEntriesFromDictionary([
+            userActivity.addUserInfoEntries(from: [
                 AppConfiguration.UserActivity.listColorUserInfoKey: rawColorValue
             ])
         }

@@ -19,7 +19,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
     // MARK: WKExtensionDelegate
     
-    func handleUserActivity(userInfo: [NSObject : AnyObject]?) {
+    func handleUserActivity(_ userInfo: [AnyHashable: Any]?) {
         mainInterfaceController?.handleUserActivity(userInfo)
     }
 }

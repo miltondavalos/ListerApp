@@ -36,8 +36,8 @@ class ListsInterfaceController: WKInterfaceController, ListsControllerDelegate {
 
         listsController = AppConfiguration.sharedConfiguration.listsControllerForCurrentConfigurationWithPathExtension(AppConfiguration.listerFileExtension)
 
-        let noListsIndexSet = NSIndexSet(index: 0)
-        interfaceTable.insertRowsAtIndexes(noListsIndexSet, withRowType: Storyboard.RowTypes.noLists)
+        let noListsIndexSet = IndexSet(integer: 0)
+        interfaceTable.insertRows(at: noListsIndexSet, withRowType: Storyboard.RowTypes.noLists)
         
         if AppConfiguration.sharedConfiguration.isFirstLaunch {
             print("Lister does not currently support configuring a storage option before the iOS app is launched. Please launch the iOS app first. See the Release Notes section in README.md for more information.")
@@ -46,37 +46,37 @@ class ListsInterfaceController: WKInterfaceController, ListsControllerDelegate {
     
     // MARK: ListsControllerDelegate
 
-    func listsController(listsController: ListsController, didInsertListInfo listInfo: ListInfo, atIndex index: Int) {
-        let indexSet = NSIndexSet(index: index)
+    func listsController(_ listsController: ListsController, didInsertListInfo listInfo: ListInfo, atIndex index: Int) {
+        let indexSet = IndexSet(integer: index)
         
         // The lists controller was previously empty. Remove the "no lists" row.
         if index == 0 && listsController.count == 1 {
-            interfaceTable.removeRowsAtIndexes(indexSet)
+            interfaceTable.removeRows(at: indexSet)
         }
         
-        interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.list)
+        interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.list)
 
         configureRowControllerAtIndex(index)
     }
     
-    func listsController(listsController: ListsController, didRemoveListInfo listInfo: ListInfo, atIndex index: Int) {
-        let indexSet = NSIndexSet(index: index)
+    func listsController(_ listsController: ListsController, didRemoveListInfo listInfo: ListInfo, atIndex index: Int) {
+        let indexSet = IndexSet(integer: index)
         
         // The lists controller is now empty. Add the "no lists" row.
         if index == 0 && listsController.count == 0 {
-            interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.noLists)
+            interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.noLists)
         }
         
-        interfaceTable.removeRowsAtIndexes(indexSet)
+        interfaceTable.removeRows(at: indexSet)
     }
     
-    func listsController(listsController: ListsController, didUpdateListInfo listInfo: ListInfo, atIndex index: Int) {
+    func listsController(_ listsController: ListsController, didUpdateListInfo listInfo: ListInfo, atIndex index: Int) {
         configureRowControllerAtIndex(index)
     }
 
     // MARK: Segues
     
-    override func contextForSegueWithIdentifier(segueIdentifier: String, inTable table: WKInterfaceTable, rowIndex: Int) -> AnyObject? {
+    override func contextForSegue(withIdentifier segueIdentifier: String, in table: WKInterfaceTable, rowIndex: Int) -> Any? {
         if segueIdentifier == Storyboard.Segues.listSelection {
             let listInfo = listsController[rowIndex]
 
@@ -88,8 +88,8 @@ class ListsInterfaceController: WKInterfaceController, ListsControllerDelegate {
     
     // MARK: Convenience
     
-    func configureRowControllerAtIndex(index: Int) {
-        let listRowController = interfaceTable.rowControllerAtIndex(index) as! ColoredTextRowController
+    func configureRowControllerAtIndex(_ index: Int) {
+        let listRowController = interfaceTable.rowController(at: index) as! ColoredTextRowController
         
         let listInfo = listsController[index]
         
@@ -100,8 +100,8 @@ class ListsInterfaceController: WKInterfaceController, ListsControllerDelegate {
                 The fetchInfoWithCompletionHandler(_:) method calls its completion handler on a background
                 queue, dispatch back to the main queue to make UI updates.
             */
-            dispatch_async(dispatch_get_main_queue()) {
-                let listRowController = self.interfaceTable.rowControllerAtIndex(index) as! ColoredTextRowController
+            DispatchQueue.main.async {
+                let listRowController = self.interfaceTable.rowController(at: index) as! ColoredTextRowController
 
                 listRowController.setColor(listInfo.color!.colorValue)
             }
@@ -125,7 +125,7 @@ class ListsInterfaceController: WKInterfaceController, ListsControllerDelegate {
         listsController.delegate = nil
     }
     
-    override func handleUserActivity(userInfo: [NSObject: AnyObject]?) {
+    override func handleUserActivity(_ userInfo: [AnyHashable: Any]?) {
         /*
             The Lister watch app only supports continuing activities where
             `AppConfiguration.UserActivity.listURLPathUserInfoKey` is provided.
@@ -137,11 +137,11 @@ class ListsInterfaceController: WKInterfaceController, ListsControllerDelegate {
             return
         }
         
-        let listInfoURL = NSURL(fileURLWithPath: listInfoFilePath!, isDirectory: false)
+        let listInfoURL = URL(fileURLWithPath: listInfoFilePath!, isDirectory: false)
         // Create a `ListInfo` that represents the list at `listInfoURL`.
         let listInfo = ListInfo(URL: listInfoURL)
         
         // Present a `ListInterfaceController`.
-        pushControllerWithName(ListInterfaceController.Storyboard.interfaceControllerName, context: listInfo)
+        pushController(withName: ListInterfaceController.Storyboard.interfaceControllerName, context: listInfo)
     }
 }

@@ -12,7 +12,7 @@ import ListerKit
 struct AppLaunchContext {
     // MARK: Properties
     
-    let listURL: NSURL
+    let listURL: URL
     
     let listColor: List.Color
     
@@ -24,7 +24,7 @@ struct AppLaunchContext {
         - parameter listURL: The `URL` of the file to launch to.
         - parameter listColor: The `List.Color` of the file to launch to.
     */
-    init(listURL: NSURL, listColor: List.Color) {
+    init(listURL: URL, listColor: List.Color) {
         self.listURL = listURL
         self.listColor = listColor
     }
@@ -46,7 +46,7 @@ struct AppLaunchContext {
             `NSUserActivityDocumentURLKey`, if not provided, obtain the path and create a file URL from it.
         */
         
-        var possibleURL = userInfo[NSUserActivityDocumentURLKey] as? NSURL
+        var possibleURL = userInfo[NSUserActivityDocumentURLKey] as? URL
         
         // If `URL` is `nil` the activity is being continued from a platofrm other than iOS or OS X.
         if possibleURL == nil {
@@ -55,14 +55,14 @@ struct AppLaunchContext {
                 return nil
             }
             
-            let fileURLForPath = NSURL(fileURLWithPath: listInfoFilePath, isDirectory: false)
+            let fileURLForPath = URL(fileURLWithPath: listInfoFilePath, isDirectory: false)
             
             // Test for the existence of the file at the URL. If it exists proceed.
-            if !fileURLForPath.checkPromisedItemIsReachableAndReturnError(nil) && !fileURLForPath.checkResourceIsReachableAndReturnError(nil) {
+            if !(fileURLForPath as NSURL).checkPromisedItemIsReachableAndReturnError(nil) && !(fileURLForPath as NSURL).checkResourceIsReachableAndReturnError(nil) {
                 // If the file does not exist at the URL created from the path construct one based on the filename.
-                let derivedURL = listsController.documentsDirectory.URLByAppendingPathComponent(fileURLForPath.lastPathComponent!, isDirectory: false)!
+                let derivedURL = listsController.documentsDirectory.appendingPathComponent(fileURLForPath.lastPathComponent, isDirectory: false)
                 
-                if !derivedURL.checkPromisedItemIsReachableAndReturnError(nil) && !derivedURL.checkResourceIsReachableAndReturnError(nil) {
+                if !(derivedURL as NSURL).checkPromisedItemIsReachableAndReturnError(nil) && !(derivedURL as NSURL).checkResourceIsReachableAndReturnError(nil) {
                     possibleURL = nil
                 }
                 else {
@@ -97,19 +97,19 @@ struct AppLaunchContext {
         
         - parameter listerURL: The URL adhering to the lister:// scheme providing the file URL and list color to launch to.
     */
-    init?(listerURL: NSURL) {
+    init?(listerURL: URL) {
         precondition(listerURL.scheme == AppConfiguration.ListerScheme.name, "Non-lister URL provided to \(#function).")
         
-        guard let filePath = listerURL.path else {
-            assertionFailure("URL provided to \(#function) is missing `path`.")
-            return nil
-        }
+//        guard let filePath = listerURL.path else {
+//            assertionFailure("URL provided to \(#function) is missing `path`.")
+//            return nil
+//        }
         
         // Construct a file URL from the path of the lister:// URL.
-        listURL = NSURL(fileURLWithPath: filePath, isDirectory: false)
+        listURL = URL(fileURLWithPath: listerURL.path, isDirectory: false)
         
         // Extract the query items to initialize the `listColor` property from the `color` query item.
-        guard let urlComponents = NSURLComponents(URL: listerURL, resolvingAgainstBaseURL: false),
+        guard let urlComponents = URLComponents(url: listerURL, resolvingAgainstBaseURL: false),
               let queryItems = urlComponents.queryItems else {
                 assertionFailure("URL provided to \(#function) contains no query items.")
                 return nil
@@ -118,7 +118,7 @@ struct AppLaunchContext {
         // Filter down to only the `color` query items. There should only be one.
         let colorQueryItems = queryItems.filter { $0.name == AppConfiguration.ListerScheme.colorQueryKey }
         
-        guard let colorQueryItem = colorQueryItems.first where colorQueryItems.count == 1 else {
+        guard let colorQueryItem = colorQueryItems.first, colorQueryItems.count == 1 else {
             assertionFailure("URL provided to \(#function) should contain only one `color` query item.")
             return nil
         }

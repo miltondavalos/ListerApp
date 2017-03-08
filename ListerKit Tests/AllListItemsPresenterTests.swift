@@ -35,7 +35,7 @@ class AllListItemsPresenterTests: XCTestCase {
     
     var testHelper: ListPresenterTestHelper!
 
-    var undoManager: NSUndoManager {
+    var undoManager: UndoManager {
         return presenter.undoManager!
     }
     
@@ -52,14 +52,14 @@ class AllListItemsPresenterTests: XCTestCase {
             initiallyCompleteListItems[2]
         ]
 
-        list = List(color: .Green, items: unorderedListItems)
+        list = List(color: .green, items: unorderedListItems)
 
         // Create the presenter.
         presenter = AllListItemsPresenter()
         
         presenter.setList(list)
 
-        presenter.undoManager = NSUndoManager()
+        presenter.undoManager = UndoManager()
 
         testHelper = ListPresenterTestHelper()
 
@@ -74,17 +74,17 @@ class AllListItemsPresenterTests: XCTestCase {
     
     func testItemInitializationNoReshufflingCaseWhenItemsAreAlreadyInOrder() {
         let incompleteListItems = (1...5).map { ListItem(text: "\($0)", complete: false) }
-        let incompleteList = List(color: .Green, items: incompleteListItems)
+        let incompleteList = List(color: .green, items: incompleteListItems)
         let incompletePresenter = AllListItemsPresenter()
         incompletePresenter.setList(incompleteList)
         
         let completeListItems = (1...5).map { ListItem(text: "\($0)", complete: true) }
-        let completeList = List(color: .Green, items: completeListItems)
+        let completeList = List(color: .green, items: completeListItems)
         let completePresenter = AllListItemsPresenter()
         completePresenter.setList(completeList)
         
         let orderedCombinedListItems = incompleteListItems + completeListItems
-        let orderedCombinedList = List(color: .Green, items: orderedCombinedListItems)
+        let orderedCombinedList = List(color: .green, items: orderedCombinedListItems)
         let orderedCombinedPresenter = AllListItemsPresenter()
         orderedCombinedPresenter.setList(orderedCombinedList)
         
@@ -96,7 +96,7 @@ class AllListItemsPresenterTests: XCTestCase {
     // MARK: `color`
     
     func testSetColorWithDifferentColor() {
-        let newColor = List.Color.Orange
+        let newColor = List.Color.orange
         
         testHelper.expectOnNextChange {
             XCTAssertEqual(self.presenter.color, newColor, "The getter for the color should return the new color.")
@@ -116,7 +116,7 @@ class AllListItemsPresenterTests: XCTestCase {
     func testSetColorWithDifferentColorAfterUndo() {
         let initialListColor = presenter.color
         
-        presenter.color = .Orange
+        presenter.color = .orange
         
         testHelper.expectOnNextChange {
             XCTAssertEqual(self.presenter.color, initialListColor, "The getter for the color should return the initial color.")
@@ -262,7 +262,7 @@ class AllListItemsPresenterTests: XCTestCase {
     
     func testRemoveListItem() {
         let listItemToRemove = presentedListItems[2]
-        let indexOfItemToRemove = presenter.presentedListItems.indexOf(listItemToRemove)!
+        let indexOfItemToRemove = presenter.presentedListItems.index(of: listItemToRemove)!
 
         testHelper.expectOnNextChange {
             let didRemoveListItemCallbackCount = self.testHelper.didRemoveListItemCallbacks.count
@@ -283,7 +283,7 @@ class AllListItemsPresenterTests: XCTestCase {
     func testRemoveListItemAfterUndo() {
         let listItemToRemove = presentedListItems[2]
         
-        let indexOfItemToRemove = presenter.presentedListItems.indexOf(listItemToRemove)!
+        let indexOfItemToRemove = presenter.presentedListItems.index(of: listItemToRemove)!
         
         presenter.removeListItem(listItemToRemove)
         
@@ -537,7 +537,7 @@ class AllListItemsPresenterTests: XCTestCase {
     func testToggleCompleteListItem() {
         let completeListItem = initiallyCompleteListItems[2]
         
-        let expectedFromIndex = presentedListItems.indexOf(completeListItem)!
+        let expectedFromIndex = presentedListItems.index(of: completeListItem)!
         let expectedToIndex = 0
         
         testHelper.expectOnNextChange {
@@ -572,7 +572,7 @@ class AllListItemsPresenterTests: XCTestCase {
     func testToggleListItemAfterUndo() {
         let listItem = presentedListItems[2]
         
-        let expectedFromIndex = presentedListItems.indexOf(listItem)!
+        let expectedFromIndex = presentedListItems.index(of: listItem)!
         let expectedToIndex = 0
         
         presenter.toggleListItem(listItem)
@@ -658,7 +658,7 @@ class AllListItemsPresenterTests: XCTestCase {
             XCTAssertEqual(self.testHelper.didUpdateListItemCallbacks.count, self.initiallyIncompleteListItems.count, "There should be one \"event\" per incomplete, presented item.")
 
             for (listItem, updatedIndex) in self.testHelper.didUpdateListItemCallbacks {
-                if let indexOfUpdatedListItem = self.presentedListItems.indexOf(listItem) {
+                if let indexOfUpdatedListItem = self.presentedListItems.index(of: listItem) {
                     XCTAssertEqual(updatedIndex, indexOfUpdatedListItem, "The updated index should be the same as the initial index.")
 
                     XCTAssertTrue(listItem.isComplete, "The item should be complete after the update.")
@@ -681,7 +681,7 @@ class AllListItemsPresenterTests: XCTestCase {
             XCTAssertEqual(self.testHelper.didUpdateListItemCallbacks.count, self.initiallyIncompleteListItems.count, "The undo should perform \(self.presentedListItems.count) updates to revert the previous update for each modified item.")
 
             for (listItem, updatedIndex) in self.testHelper.didUpdateListItemCallbacks {
-                if let indexOfUpdatedListItem = presentedListItemsCopy.indexOf(listItem) {
+                if let indexOfUpdatedListItem = presentedListItemsCopy.index(of: listItem) {
                     let listItemCopy = presentedListItemsCopy[indexOfUpdatedListItem]
 
                     XCTAssertEqual(updatedIndex, indexOfUpdatedListItem, "The updated index should be the same as the initial index.")

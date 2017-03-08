@@ -26,7 +26,7 @@ public protocol ListPresenterDelegate: class {
     
         - parameter listPresenter: The list presenter whose full layout has changed.
     */
-    func listPresenterDidRefreshCompleteLayout(listPresenter: ListPresenterType)
+    func listPresenterDidRefreshCompleteLayout(_ listPresenter: ListPresenterType)
     
     /**
         A `ListPresenterType` invokes this method on its delegate before a set of layout changes occur. This
@@ -39,7 +39,7 @@ public protocol ListPresenterDelegate: class {
         - parameter listPresenter: The list presenter whose presentation will change.
         - parameter isInitialLayout: Whether or not the presenter is presenting the most recent list for the first time.
     */
-    func listPresenterWillChangeListLayout(listPresenter: ListPresenterType, isInitialLayout: Bool)
+    func listPresenterWillChangeListLayout(_ listPresenter: ListPresenterType, isInitialLayout: Bool)
     
     /**
         A `ListPresenterType` invokes this method on its delegate when an item was inserted into the list.
@@ -50,7 +50,7 @@ public protocol ListPresenterDelegate: class {
         - parameter listItem: The list item that has been inserted.
         - parameter index: The index that `listItem` was inserted into.
     */
-    func listPresenter(listPresenter: ListPresenterType, didInsertListItem listItem: ListItem, atIndex index: Int)
+    func listPresenter(_ listPresenter: ListPresenterType, didInsertListItem listItem: ListItem, atIndex index: Int)
     
     /**
         A `ListPresenterType` invokes this method on its delegate when an item was removed from the list. This
@@ -61,7 +61,7 @@ public protocol ListPresenterDelegate: class {
         - parameter listItem: The list item that has been removed.
         - parameter index: The index that `listItem` was removed from.
     */
-    func listPresenter(listPresenter: ListPresenterType, didRemoveListItem listItem: ListItem, atIndex index: Int)
+    func listPresenter(_ listPresenter: ListPresenterType, didRemoveListItem listItem: ListItem, atIndex index: Int)
 
     /**
         A `ListPresenterType` invokes this method on its delegate when an item is updated in place. This could
@@ -73,7 +73,7 @@ public protocol ListPresenterDelegate: class {
         - parameter listItem: The list item that has been updated.
         - parameter index: The index that `listItem` was updated at in place.
     */
-    func listPresenter(listPresenter: ListPresenterType, didUpdateListItem listItem: ListItem, atIndex index: Int)
+    func listPresenter(_ listPresenter: ListPresenterType, didUpdateListItem listItem: ListItem, atIndex index: Int)
 
     /**
         A `ListPresenterType` invokes this method on its delegate when an item moved `fromIndex` to `toIndex`.
@@ -86,7 +86,7 @@ public protocol ListPresenterDelegate: class {
         - parameter fromIndex: The original index that `listItem` was located at before the move.
         - parameter toIndex: The index that `listItem` was moved to.
     */
-    func listPresenter(listPresenter: ListPresenterType, didMoveListItem listItem: ListItem, fromIndex: Int, toIndex: Int)
+    func listPresenter(_ listPresenter: ListPresenterType, didMoveListItem listItem: ListItem, fromIndex: Int, toIndex: Int)
 
     /**
         A `ListPresenterType` invokes this method on its delegate when the color of the `ListPresenterType`
@@ -96,7 +96,7 @@ public protocol ListPresenterDelegate: class {
         - parameter listPresenter: The list presenter whose presentation has changed.
         - parameter color: The new color of the presented list.
     */
-    func listPresenter(listPresenter: ListPresenterType, didUpdateListColorWithColor color: List.Color)
+    func listPresenter(_ listPresenter: ListPresenterType, didUpdateListColorWithColor color: List.Color)
 
     /**
         A `ListPresenterType` invokes this method on its delegate after a set of layout changes occur. See
@@ -105,5 +105,5 @@ public protocol ListPresenterDelegate: class {
         - parameter listPresenter: The list presenter whose presentation has changed.
         - parameter isInitialLayout: Whether or not the presenter is presenting the most recent list for the first time.
     */
-    func listPresenterDidChangeListLayout(listPresenter: ListPresenterType, isInitialLayout: Bool)
+    func listPresenterDidChangeListLayout(_ listPresenter: ListPresenterType, isInitialLayout: Bool)
 }

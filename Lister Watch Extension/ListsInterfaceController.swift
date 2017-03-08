@@ -34,43 +34,43 @@ class ListsInterfaceController: WKInterfaceController, ConnectivityListsControll
     override init() {
         super.init()
 
-        let noListsIndexSet = NSIndexSet(index: 0)
-        interfaceTable.insertRowsAtIndexes(noListsIndexSet, withRowType: Storyboard.RowTypes.noLists)
+        let noListsIndexSet = IndexSet(integer: 0)
+        interfaceTable.insertRows(at: noListsIndexSet, withRowType: Storyboard.RowTypes.noLists)
     }
     
     // MARK: ConnectivityListsControllerDelegate
 
-    func listsController(listsController: ConnectivityListsController, didInsertListInfo listInfo: ListInfo, atIndex index: Int) {
-        let indexSet = NSIndexSet(index: index)
+    func listsController(_ listsController: ConnectivityListsController, didInsertListInfo listInfo: ListInfo, atIndex index: Int) {
+        let indexSet = IndexSet(integer: index)
         
         // The lists controller was previously empty. Remove the "no lists" row.
         if index == 0 && listsController.count == 1 {
-            interfaceTable.removeRowsAtIndexes(indexSet)
+            interfaceTable.removeRows(at: indexSet)
         }
         
-        interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.list)
+        interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.list)
 
         configureRowControllerAtIndex(index)
     }
     
-    func listsController(listsController: ConnectivityListsController, didRemoveListInfo listInfo: ListInfo, atIndex index: Int) {
-        let indexSet = NSIndexSet(index: index)
+    func listsController(_ listsController: ConnectivityListsController, didRemoveListInfo listInfo: ListInfo, atIndex index: Int) {
+        let indexSet = IndexSet(integer: index)
         
         // The lists controller is now empty. Add the "no lists" row.
         if index == 0 && listsController.count == 0 {
-            interfaceTable.insertRowsAtIndexes(indexSet, withRowType: Storyboard.RowTypes.noLists)
+            interfaceTable.insertRows(at: indexSet, withRowType: Storyboard.RowTypes.noLists)
         }
         
-        interfaceTable.removeRowsAtIndexes(indexSet)
+        interfaceTable.removeRows(at: indexSet)
     }
     
-    func listsController(listsController: ConnectivityListsController, didUpdateListInfo listInfo: ListInfo, atIndex index: Int) {
+    func listsController(_ listsController: ConnectivityListsController, didUpdateListInfo listInfo: ListInfo, atIndex index: Int) {
         configureRowControllerAtIndex(index)
     }
 
     // MARK: Segues
     
-    override func contextForSegueWithIdentifier(segueIdentifier: String, inTable table: WKInterfaceTable, rowIndex: Int) -> AnyObject? {
+    override func contextForSegue(withIdentifier segueIdentifier: String, in table: WKInterfaceTable, rowIndex: Int) -> Any? {
         if segueIdentifier == Storyboard.Segues.listSelection {
             let listInfo = listsController[rowIndex]
 
@@ -82,8 +82,8 @@ class ListsInterfaceController: WKInterfaceController, ConnectivityListsControll
     
     // MARK: Convenience
     
-    func configureRowControllerAtIndex(index: Int) {
-        let listRowController = interfaceTable.rowControllerAtIndex(index) as! ColoredTextRowController
+    func configureRowControllerAtIndex(_ index: Int) {
+        let listRowController = interfaceTable.rowController(at: index) as! ColoredTextRowController
         
         let listInfo = listsController[index]
         
@@ -94,7 +94,7 @@ class ListsInterfaceController: WKInterfaceController, ConnectivityListsControll
     // MARK: Interface Life Cycle
 
     override func willActivate() {
-        let extensionDelegate = WKExtension.sharedExtension().delegate as? ExtensionDelegate
+        let extensionDelegate = WKExtension.shared().delegate as? ExtensionDelegate
         
         extensionDelegate?.mainInterfaceController = self
         
@@ -110,7 +110,7 @@ class ListsInterfaceController: WKInterfaceController, ConnectivityListsControll
         listsController.stopSearching()
     }
     
-    override func handleUserActivity(userInfo: [NSObject: AnyObject]?) {
+    override func handleUserActivity(_ userInfo: [AnyHashable: Any]?) {
         //The Lister watch app only supports continuing activities where `AppConfiguration.UserActivity.listURLPathUserInfoKey` is provided.
         guard let listInfoFilePath = userInfo?[AppConfiguration.UserActivity.listURLPathUserInfoKey] as? String,
               let rawColor = userInfo?[AppConfiguration.UserActivity.listColorUserInfoKey] as? Int,
@@ -118,10 +118,10 @@ class ListsInterfaceController: WKInterfaceController, ConnectivityListsControll
         
         // Create a `ListInfo` that represents the list at `listInfoURL`.
         let lastPathComponent = (listInfoFilePath as NSString).lastPathComponent
-        let name = (lastPathComponent as NSString).stringByDeletingPathExtension
+        let name = (lastPathComponent as NSString).deletingPathExtension
         let listInfo = ListInfo(name: name, color: color)
         
         // Present a `ListInterfaceController`.
-        pushControllerWithName(ListInterfaceController.Storyboard.interfaceControllerName, context: listInfo)
+        pushController(withName: ListInterfaceController.Storyboard.interfaceControllerName, context: listInfo)
     }
 }

@@ -105,7 +105,7 @@ class GlanceInterfaceController: WKInterfaceController, ListsControllerDelegate,
     
     override func didDeactivate() {
         // Close the document when the interface controller is finished presenting.
-        listDocument?.closeWithCompletionHandler { success in
+        listDocument?.close { success in
             if !success {
                 NSLog("Couldn't close document: \(self.listDocument?.fileURL.absoluteString)")
                 
@@ -122,14 +122,14 @@ class GlanceInterfaceController: WKInterfaceController, ListsControllerDelegate,
     
     // MARK: Convenience
     
-    func processListInfoAsTodayDocument(listInfo: ListInfo) {
+    func processListInfoAsTodayDocument(_ listInfo: ListInfo) {
         let listPresenter = AllListItemsPresenter()
 
         listDocument = ListDocument(fileURL: listInfo.URL, listPresenter: listPresenter)
         
         listPresenter.delegate = self
 
-        listDocument?.openWithCompletionHandler() { success in
+        listDocument?.open() { success in
             if !success {
                 NSLog("Couldn't open document: \(self.listDocument?.fileURL.absoluteString)")
 
@@ -142,8 +142,8 @@ class GlanceInterfaceController: WKInterfaceController, ListsControllerDelegate,
                 is passed instead of a URL because the `userInfo` dictionary of a WatchKit app's user activity
                 does not allow NSURL values.
             */
-            let userInfo: [NSObject: AnyObject] = [
-                AppConfiguration.UserActivity.listURLPathUserInfoKey: self.listDocument!.fileURL.path!,
+            let userInfo: [AnyHashable: Any] = [
+                AppConfiguration.UserActivity.listURLPathUserInfoKey: self.listDocument!.fileURL.path,
                 AppConfiguration.UserActivity.listColorUserInfoKey: self.listPresenter!.color.rawValue
             ]
             
@@ -180,7 +180,7 @@ class GlanceInterfaceController: WKInterfaceController, ListsControllerDelegate,
         
         glanceBadgeGroup.setBackgroundImage(glanceBadge.groupBackgroundImage)
         glanceBadgeImage.setImageNamed(glanceBadge.imageName)
-        glanceBadgeImage.startAnimatingWithImagesInRange(glanceBadge.imageRange, duration: glanceBadge.animationDuration, repeatCount: 1)
+        glanceBadgeImage.startAnimatingWithImages(in: glanceBadge.imageRange, duration: glanceBadge.animationDuration, repeatCount: 1)
         
         /*
             Create a localized string for the # items remaining in the Glance badge. The string is retrieved

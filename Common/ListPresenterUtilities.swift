@@ -12,14 +12,14 @@ import Foundation
     Removes each list item found in `listItemsToRemove` from the `initialListItems` array. For each removal,
     the function notifies the `listPresenter`'s delegate of the change.
 */
-func removeListItemsFromListItemsWithListPresenter(listPresenter: ListPresenterType, inout initialListItems: [ListItem], listItemsToRemove: [ListItem]) {
-    let sortedListItemsToRemove = listItemsToRemove.sort { initialListItems.indexOf($0)! > initialListItems.indexOf($1)! }
+func removeListItemsFromListItemsWithListPresenter(_ listPresenter: ListPresenterType, initialListItems: inout [ListItem], listItemsToRemove: [ListItem]) {
+    let sortedListItemsToRemove = listItemsToRemove.sorted { initialListItems.index(of: $0)! > initialListItems.index(of: $1)! }
     
     for listItemToRemove in sortedListItemsToRemove {
         // Use the index of the list item to remove in the current list's list items.
-        let indexOfListItemToRemoveInOldList = initialListItems.indexOf(listItemToRemove)!
+        let indexOfListItemToRemoveInOldList = initialListItems.index(of: listItemToRemove)!
         
-        initialListItems.removeAtIndex(indexOfListItemToRemoveInOldList)
+        initialListItems.remove(at: indexOfListItemToRemoveInOldList)
         
         listPresenter.delegate?.listPresenter(listPresenter, didRemoveListItem: listItemToRemove, atIndex: indexOfListItemToRemoveInOldList)
     }
@@ -29,9 +29,9 @@ func removeListItemsFromListItemsWithListPresenter(listPresenter: ListPresenterT
     Inserts each list item in `listItemsToInsert` into `initialListItems`. For each insertion, the function
     notifies the `listPresenter`'s delegate of the change.
 */
-func insertListItemsIntoListItemsWithListPresenter(listPresenter: ListPresenterType, inout initialListItems: [ListItem], listItemsToInsert: [ListItem]) {
-    for (idx, insertedIncompleteListItem) in listItemsToInsert.enumerate() {
-        initialListItems.insert(insertedIncompleteListItem, atIndex: idx)
+func insertListItemsIntoListItemsWithListPresenter(_ listPresenter: ListPresenterType, initialListItems: inout [ListItem], listItemsToInsert: [ListItem]) {
+    for (idx, insertedIncompleteListItem) in listItemsToInsert.enumerated() {
+        initialListItems.insert(insertedIncompleteListItem, at: idx)
         
         listPresenter.delegate?.listPresenter(listPresenter, didInsertListItem: insertedIncompleteListItem, atIndex: idx)
     }
@@ -41,9 +41,9 @@ func insertListItemsIntoListItemsWithListPresenter(listPresenter: ListPresenterT
     Replaces the stale list items in `presentedListItems` with the new ones found in `newUpdatedListItems`. For
     each update, the function notifies the `listPresenter`'s delegate of the update.
 */
-func updateListItemsWithListItemsForListPresenter(listPresenter: ListPresenterType, inout presentedListItems: [ListItem], newUpdatedListItems: [ListItem]) {
+func updateListItemsWithListItemsForListPresenter(_ listPresenter: ListPresenterType, presentedListItems: inout [ListItem], newUpdatedListItems: [ListItem]) {
     for newlyUpdatedListItem in newUpdatedListItems {
-        let indexOfListItem = presentedListItems.indexOf(newlyUpdatedListItem)!
+        let indexOfListItem = presentedListItems.index(of: newlyUpdatedListItem)!
         
         presentedListItems[indexOfListItem] = newlyUpdatedListItem
         
@@ -57,7 +57,7 @@ func updateListItemsWithListItemsForListPresenter(listPresenter: ListPresenterTy
     the changes in a call to `listPresenterWillChangeListLayout(_:isInitialLayout:)`
     and a call to `listPresenterDidChangeListLayout(_:isInitialLayout:)` with the value `isForInitialLayout!`.
 */
-func updateListColorForListPresenterIfDifferent(listPresenter: ListPresenterType, inout color: List.Color, newColor: List.Color, isForInitialLayout: Bool? = nil) {    
+func updateListColorForListPresenterIfDifferent(_ listPresenter: ListPresenterType, color: inout List.Color, newColor: List.Color, isForInitialLayout: Bool? = nil) {    
     // Don't trigger any updates if the new color is the same as the current color.
     if color == newColor { return }
     

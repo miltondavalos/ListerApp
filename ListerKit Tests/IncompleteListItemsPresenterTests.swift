@@ -38,7 +38,7 @@ class IncompleteListItemsPresenterTests: XCTestCase {
     // MARK: XCTest Life Time
 
     override func setUp() {
-        list = List(color: .Green, items: initiallyCompleteListItems + initiallyIncompleteListItems)
+        list = List(color: .green, items: initiallyCompleteListItems + initiallyIncompleteListItems)
 
         presenter = IncompleteListItemsPresenter()
         
@@ -81,7 +81,7 @@ class IncompleteListItemsPresenterTests: XCTestCase {
     // MARK: `color`
     
     func testSetColorWithDifferentColor() {
-        let newColor = List.Color.Orange
+        let newColor = List.Color.orange
 
         testHelper.expectOnNextChange {
             XCTAssertEqual(self.presenter.color, newColor, "The getter for the color should return the new color.")
@@ -151,7 +151,7 @@ class IncompleteListItemsPresenterTests: XCTestCase {
             XCTAssertEqual(self.testHelper.didUpdateListItemCallbacks.count, self.initiallyIncompleteListItems.count, "There should be one \"event\" per incomplete, presented item.")
 
             for (listItem, updatedIndex) in self.testHelper.didUpdateListItemCallbacks {
-                if let indexOfUpdatedListItem = self.presentedListItems.indexOf(listItem) {
+                if let indexOfUpdatedListItem = self.presentedListItems.index(of: listItem) {
                     XCTAssertEqual(updatedIndex, indexOfUpdatedListItem, "The updated index should be the same as the initial index.")
 
                     XCTAssertTrue(listItem.isComplete, "The item should be complete after the update.")

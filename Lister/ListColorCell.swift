@@ -11,7 +11,7 @@ import ListerKit
 
 /// Provides the ability to send a delegate a message about newly created list info objects.
 @objc protocol ListColorCellDelegate {
-    func listColorCellDidChangeSelectedColor(listColorCell: ListColorCell)
+    func listColorCellDidChangeSelectedColor(_ listColorCell: ListColorCell)
 }
 
 /**
@@ -37,7 +37,7 @@ class ListColorCell: UITableViewCell {
 
     weak var delegate: ListColorCellDelegate?
     
-    var selectedColor = List.Color.Gray
+    var selectedColor = List.Color.gray
 
     // MARK: Configuration
 
@@ -52,15 +52,15 @@ class ListColorCell: UITableViewCell {
     
     // MARK: UITapGestureRecognizer Handling
     
-    @IBAction func colorTap(tapGestureRecognizer: UITapGestureRecognizer) {
-        if tapGestureRecognizer.state != .Ended {
+    @IBAction func colorTap(_ tapGestureRecognizer: UITapGestureRecognizer) {
+        if tapGestureRecognizer.state != .ended {
             return
         }
         
-        let tapLocation = tapGestureRecognizer.locationInView(contentView)
+        let tapLocation = tapGestureRecognizer.location(in: contentView)
 
         // If the user tapped on a color (identified by its tag), notify the delegate.
-        if let view = contentView.hitTest(tapLocation, withEvent: nil) as? ColorTappableView {
+        if let view = contentView.hitTest(tapLocation, with: nil) as? ColorTappableView {
             selectedColor = List.Color(rawValue: view.tag)!
 
             delegate?.listColorCellDidChangeSelectedColor(self)

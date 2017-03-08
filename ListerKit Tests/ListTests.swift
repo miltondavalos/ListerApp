@@ -15,7 +15,7 @@ class ListTests: XCTestCase {
     // `items` is initialized again in setUp().
     var items = [ListItem]()
     
-    var color = List.Color.Green
+    var color = List.Color.green
 
     // Both of these lists are initialized in setUp().
     var list: List!
@@ -42,7 +42,7 @@ class ListTests: XCTestCase {
     func testDefaultInitializer() {
         list = List()
 
-        XCTAssertEqual(list.color, List.Color.Gray, "The default list color is Gray.")
+        XCTAssertEqual(list.color, List.Color.gray, "The default list color is Gray.")
         XCTAssertTrue(list.items.isEmpty, "A default list has no list items.")
     }
     
@@ -53,7 +53,7 @@ class ListTests: XCTestCase {
     }
 
     func testColorAndItemsDesignatedInitializerCopiesItems() {
-        for (index, item) in list.items.enumerate() {
+        for (index, item) in list.items.enumerated() {
             XCTAssertFalse(items[index] === item, "ListItems should be copied in List's init().")
         }
     }
@@ -73,15 +73,15 @@ class ListTests: XCTestCase {
     // MARK: NSCoding
 
     func testEncodingLists() {
-        let archivedListData = NSKeyedArchiver.archivedDataWithRootObject(list)
+        let archivedListData = NSKeyedArchiver.archivedData(withRootObject: list)
 
-        XCTAssertTrue(archivedListData.length > 0)
+        XCTAssertTrue(archivedListData.count > 0)
     }
     
     func testDecodingLists() {
-        let archivedListData = NSKeyedArchiver.archivedDataWithRootObject(list)
+        let archivedListData = NSKeyedArchiver.archivedData(withRootObject: list)
         
-        let unarchivedList = NSKeyedUnarchiver.unarchiveObjectWithData(archivedListData) as? List
+        let unarchivedList = NSKeyedUnarchiver.unarchiveObject(with: archivedListData) as? List
 
         XCTAssertNotNil(unarchivedList)
 
@@ -93,10 +93,10 @@ class ListTests: XCTestCase {
     // MARK: Equality
     
     func testIsEqual() {
-        let listOne = List(color: .Gray, items: items)
-        let listTwo = List(color: .Gray, items: items)
-        let listThree = List(color: .Green, items: items)
-        let listFour = List(color: .Gray, items: [])
+        let listOne = List(color: .gray, items: items)
+        let listTwo = List(color: .gray, items: items)
+        let listThree = List(color: .green, items: items)
+        let listFour = List(color: .gray, items: [])
 
         XCTAssertEqual(listOne, listTwo)
         XCTAssertNotEqual(listTwo, listThree)

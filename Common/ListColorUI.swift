@@ -20,22 +20,22 @@ private typealias AppColor = NSColor
 #endif
 
 public extension List.Color {
-    private static let colorMapping = [
-        List.Color.Gray:   AppColor.darkGrayColor(),
-        List.Color.Blue:   AppColor(red: 0.42, green: 0.70, blue: 0.88, alpha: 1),
-        List.Color.Green:  AppColor(red: 0.71, green: 0.84, blue: 0.31, alpha: 1),
-        List.Color.Yellow: AppColor(red: 0.95, green: 0.88, blue: 0.15, alpha: 1),
-        List.Color.Orange: AppColor(red: 0.96, green: 0.63, blue: 0.20, alpha: 1),
-        List.Color.Red:    AppColor(red: 0.96, green: 0.42, blue: 0.42, alpha: 1)
+    fileprivate static let colorMapping = [
+        List.Color.gray:   AppColor.darkGray,
+        List.Color.blue:   AppColor(red: 0.42, green: 0.70, blue: 0.88, alpha: 1),
+        List.Color.green:  AppColor(red: 0.71, green: 0.84, blue: 0.31, alpha: 1),
+        List.Color.yellow: AppColor(red: 0.95, green: 0.88, blue: 0.15, alpha: 1),
+        List.Color.orange: AppColor(red: 0.96, green: 0.63, blue: 0.20, alpha: 1),
+        List.Color.red:    AppColor(red: 0.96, green: 0.42, blue: 0.42, alpha: 1)
     ]
     
-    private static let notificationCenterColorMapping = [
-        List.Color.Gray:   AppColor.lightGrayColor(),
-        List.Color.Blue:   AppColor(red: 0.42, green: 0.70, blue: 0.88, alpha: 1),
-        List.Color.Green:  AppColor(red: 0.71, green: 0.84, blue: 0.31, alpha: 1),
-        List.Color.Yellow: AppColor(red: 0.95, green: 0.88, blue: 0.15, alpha: 1),
-        List.Color.Orange: AppColor(red: 0.96, green: 0.63, blue: 0.20, alpha: 1),
-        List.Color.Red:    AppColor(red: 0.96, green: 0.42, blue: 0.42, alpha: 1)
+    fileprivate static let notificationCenterColorMapping = [
+        List.Color.gray:   AppColor.lightGray,
+        List.Color.blue:   AppColor(red: 0.42, green: 0.70, blue: 0.88, alpha: 1),
+        List.Color.green:  AppColor(red: 0.71, green: 0.84, blue: 0.31, alpha: 1),
+        List.Color.yellow: AppColor(red: 0.95, green: 0.88, blue: 0.15, alpha: 1),
+        List.Color.orange: AppColor(red: 0.96, green: 0.63, blue: 0.20, alpha: 1),
+        List.Color.red:    AppColor(red: 0.96, green: 0.42, blue: 0.42, alpha: 1)
     ]
 
     #if os(iOS) || os(watchOS)

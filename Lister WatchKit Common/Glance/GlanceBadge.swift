@@ -18,7 +18,7 @@ class GlanceBadge {
     // MARK: Types
     
     struct Constants {
-        static let maxDuration: NSTimeInterval = 0.75
+        static let maxDuration: TimeInterval = 0.75
     }
     
     // MARK: Properties
@@ -41,7 +41,7 @@ class GlanceBadge {
     }
     
     /// The length that the Glance badge image will animate.
-    var animationDuration: NSTimeInterval {
+    var animationDuration: TimeInterval {
         return percentage * Constants.maxDuration
     }
     
@@ -61,15 +61,15 @@ class GlanceBadge {
         return frame!
     }
     
-    let groupBackgroundImageSize = CGSizeMake(136, 101)
+    let groupBackgroundImageSize = CGSize(width: 136, height: 101)
     
-    private let percentage: Double
+    fileprivate let percentage: Double
     
     /**
         Determines the number of images to animate based on `percentage`. If `percentage` is larger than 1.0,
         the `rangeLength` is the total number of available images.
     */
-    private var rangeLength: Int {
+    fileprivate var rangeLength: Int {
         var normalizedPercentage = percentage
         
         if normalizedPercentage > 1.0 {
@@ -83,7 +83,7 @@ class GlanceBadge {
     }
     
     /// The color that is used to draw the number of complete items.
-    private var completeTextPathColor: UIColor {
+    fileprivate var completeTextPathColor: UIColor {
         return UIColor(hue: 199.0 / 360.0, saturation: 0.64, brightness: 0.98, alpha: 1.0)
     }
 
@@ -111,25 +111,25 @@ class GlanceBadge {
         
         let itemsCompleteText = "\(completeItemCount)"
         let completeAttributes = [
-            NSFontAttributeName: UIFont.systemFontOfSize(36),
+            NSFontAttributeName: UIFont.systemFont(ofSize: 36),
             NSForegroundColorAttributeName: completeTextPathColor
         ]
-        let completeSize = itemsCompleteText.sizeWithAttributes(completeAttributes)
+        let completeSize = itemsCompleteText.size(attributes: completeAttributes)
         
         // Build and gather information about the done string.
         let doneText = NSLocalizedString("Done", comment: "")
         let doneAttributes = [
-            NSFontAttributeName: UIFont.systemFontOfSize(16),
-            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+            NSFontAttributeName: UIFont.systemFont(ofSize: 16),
+            NSForegroundColorAttributeName: UIColor.darkGray
         ]
-        let doneSize = doneText.sizeWithAttributes(doneAttributes)
+        let doneSize = doneText.size(attributes: doneAttributes)
         
         let completeRect = CGRect(x: center.x - 0.5 * completeSize.width, y: center.y - 0.5 * completeSize.height - 0.5 * doneSize.height, width: completeSize.width, height: completeSize.height)
 
         let doneRect = CGRect(x: center.x - 0.5 * doneSize.width, y: center.y + 0.125 * doneSize.height, width: doneSize.width, height: doneSize.height)
         
-        itemsCompleteText.drawInRect(completeRect.integral, withAttributes: completeAttributes)
+        itemsCompleteText.draw(in: completeRect.integral, withAttributes: completeAttributes)
 
-        doneText.drawInRect(doneRect.integral, withAttributes: doneAttributes)
+        doneText.draw(in: doneRect.integral, withAttributes: doneAttributes)
     }
 }

@@ -37,7 +37,7 @@ class ListPresenterTestHelper: ListPresenterDelegate {
     
     // Expectation specific variables.
     
-    var assertions: (Void -> Void)! = nil
+    var assertions: ((Void) -> Void)! = nil
     
     var isTesting = false
 
@@ -103,7 +103,7 @@ class ListPresenterTestHelper: ListPresenterDelegate {
     }
     
     /// A helper method run `assertions` once a batch of changes has occured to the list presenter.
-    func expectOnNextChange(expectations: Void -> Void) {
+    func expectOnNextChange(_ expectations: @escaping (Void) -> Void) {
         isTesting = true
         
         self.assertions = expectations

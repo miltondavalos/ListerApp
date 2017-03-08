@@ -21,11 +21,11 @@ class ColoredTextRowController: NSObject {
     
     // MARK: Methods
     
-    func setText(text: String) {
+    func setText(_ text: String) {
         textLabel.setText(text)
     }
     
-    func setColor(color: UIColor) {
+    func setColor(_ color: UIColor) {
         listColorGroup.setBackgroundColor(color)
     }
 }
